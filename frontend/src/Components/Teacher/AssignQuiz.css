@@ -1,0 +1,19 @@
+/* ============================= */
+/* HORIZONTAL SCROLL ONLY (MOBILE) */
+/* ============================= */
+@media (max-width: 768px) {
+
+  .table-scroll {
+    overflow-x: auto;              /* ✅ horizontal scroll */
+    overflow-y: hidden;            /* ❌ no vertical scroll */
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  /* force table wider than screen */
+  .assignquiz-table {
+    min-width: 520px;              /* 👈 adjust if needed */
+    width: 100%;
+  }
+
+}

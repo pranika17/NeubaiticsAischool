@@ -1,0 +1,193 @@
+/* Glass Card */
+.glass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 25px;
+  border: 1px solid rgba(0,255,255,0.5);
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(0,255,255,0.5);
+}
+
+.glass-card-title {
+  color: #00ffff;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Modern Table */
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #00ffff;
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(0,255,255,0.3);
+}
+
+.modern-table thead th {
+  color: #ffffff !important;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(0,255,255,0.4);
+}
+
+.hover-row:hover {
+  background: rgba(0,255,255,0.15);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* Neon Buttons */
+.neon-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #00a19a;        /* TEAL – visible + dashboard matching */
+  color: #fff !important;     /* makes icons/text WHITE */
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.neon-btn:hover {
+  background: #00d4cc;        /* lighter hover */
+  transform: scale(1.04);
+  box-shadow: 0 0 8px rgba(0,255,255,0.65);
+}
+
+
+
+/* Tooltip container */
+.tooltip-btn {
+  position: relative;
+}
+
+/* Tooltip bubble */
+.tooltip-btn:hover::after {
+  content: attr(data-title);
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00ffff;
+  color: #000000;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5);
+  opacity: 1;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-in-out;
+  z-index: 100;
+}
+
+/* Tooltip Arrow */
+.tooltip-btn:hover::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #00ffff transparent;
+  opacity: 1;
+  z-index: 100;
+}
+
+/* Hide tooltip default */
+.tooltip-btn::after,
+.tooltip-btn::before {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+/* =====================================
+   FIX: REMOVE SCROLLBAR + REDUCE WIDTH
+===================================== */
+
+/* Reduce card width slightly */
+.glass-card {
+  max-width: 92%;        /* reduces box width */
+  margin: 0 auto;        /* keeps it centered */
+}
+
+/* Kill scrollbar completely */
+.glass-card,
+.glass-card * {
+  overflow: visible !important;
+}
+
+/* If table wrapper exists */
+.glass-card table,
+.modern-table {
+  overflow: visible !important;
+}
+
+/* Prevent hidden height limits */
+.glass-card {
+  height: auto !important;
+  max-height: none !important;
+}
+/* ================================
+   PROFILE IMAGE – WHATSAPP STYLE
+================================ */
+
+/* Target profile images inside table */
+.modern-table td img {
+  width: 52px;              /* fixed size */
+  height: 52px;             /* fixed size */
+  border-radius: 50%;       /* perfect circle */
+  object-fit: cover;        /* crop correctly */
+  display: block;
+  margin: 0 auto;           /* center in cell */
+
+  border: 2px solid rgba(0, 255, 255, 0.6); /* neon ring */
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.45);
+}
+/* ================================
+   PROFILE IMAGE – FIXED & ROUND
+================================ */
+
+.imgmeet {
+  width: 56px !important;
+  height: 56px !important;
+
+  min-width: 56px;
+  min-height: 56px;
+
+  max-width: 56px;
+  max-height: 56px;
+
+  border-radius: 50% !important;
+  object-fit: cover !important;
+
+  display: inline-block !important;
+  overflow: hidden !important;
+
+  border: 2px solid rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.45);
+}
+
+/* Keep table row from stretching image */
+.modern-table td {
+  vertical-align: middle;
+}
+
+

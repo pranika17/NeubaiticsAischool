@@ -1,0 +1,506 @@
+/* ================================================= */
+/* SECTION HEADINGS – HIGH CONTRAST ON DARK BG */
+/* ================================================= */
+
+h1.mb-4,
+h1.mb-5 {
+  color: #00f5ff; /* neon aqua */
+  text-shadow: 0 0 12px rgba(0,245,255,0.45);
+}
+
+.section-title {
+  color: #7ffcff !important;
+  background: transparent !important;
+}
+
+/* ================================================= */
+/* HERO / ABOUT TEXT */
+/* ================================================= */
+
+.showcase h1,
+.showcase h2 {
+  color: #eaffff;
+}
+
+.showcase p,
+.para {
+  color: #c9f7ff;
+}
+
+/* About heading specifically */
+#about h1 {
+  color: #00f5ff;
+}
+
+#about p {
+  color: #d6f9ff;
+}
+
+/* ================================================= */
+/* LATEST & POPULAR COURSE CARDS */
+/* ================================================= */
+
+/* Course title */
+.course-item h5 a {
+  color: #08313a; /* dark teal on light card */
+}
+
+.course-item h5 a:hover {
+  color: #00a8b5;
+}
+
+/* Teacher name */
+.course-item small {
+  color: #006d7a;
+  font-weight: 600;
+}
+
+/* Icons */
+.course-item i {
+  color: #00bcd4 !important;
+}
+
+/* Student count / views */
+.course-item small:last-child {
+  color: #00838f;
+}
+
+/* ================================================= */
+/* POPULAR COURSES FOOTER FIX */
+/* ================================================= */
+
+.course-item .border-top small {
+  color: #006d7a;
+}
+
+/* ================================================= */
+/* POPULAR INSTRUCTORS */
+/* ================================================= */
+
+/* Instructor name (Vinoth – stays strong) */
+.team-item h4 a {
+  color: #08313a;
+  font-weight: 700;
+}
+
+/* QUALIFICATION (Robotics & IoT) – FIX HERE */
+.team-item p {
+  color: #007c91;   /* 👈 KEY FIX */
+  font-weight: 600;
+}
+
+/* ================================================= */
+/* PROGRAM CARDS */
+/* ================================================= */
+
+.program-card h5 {
+  color: #08313a;
+}
+
+.program-card p {
+  color: #1f3f46;
+}
+
+/* Hover still white */
+.program-card:hover h5,
+.program-card:hover p {
+  color: #ffffff !important;
+}
+
+/* ================================================= */
+/* STUDENT TESTIMONIALS */
+/* ================================================= */
+
+.testimonial-card {
+  background: linear-gradient(145deg, #e6fbff, #dff6ff);
+}
+
+.feedback-text {
+  color: #08313a;
+}
+
+.testimonial-name {
+  color: #007c91;
+}
+
+.testimonial-course {
+  color: #0097a7;
+  font-weight: 600;
+}
+
+/* ================================================= */
+/* VIEW MORE BUTTON FIX */
+/* ================================================= */
+
+.btn-primary {
+  background: linear-gradient(135deg, #00e5ff, #00ffa2);
+  border: none;
+}
+
+.btn-primary a {
+  color: #00333a !important;
+  font-weight: 700;
+}
+
+
+.program-card {
+  transition: 0.3s ease;
+  border-radius: 10px;
+}
+
+.testimonial-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  margin: 0 auto;
+  background-color: #f2f2f2;
+}
+
+.myCarousel {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  background: #bff3f7; /* light blue */
+  border-radius: 10px;
+}
+
+.myCarousel h5 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.myCarousel h6 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.myCarousel p.feedback-text {
+  margin: 0;                 /* removes top empty gap */
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  max-height: calc(1.6em * 3); /* limit to 3 lines */
+  overflow-y: auto;          /* scroll only for feedback */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.3) transparent;
+}
+
+/* Optional fade hint when scroll exists */
+.myCarousel p.feedback-text {
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+}
+
+.testimonial-name {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* Hover effect same as feature cards */
+.program-card:hover {
+  transform: translateY(-10px);
+  background: #03a9f4;
+}
+
+.program-card:hover h5,
+.program-card:hover p,
+.program-card:hover i {
+  color: #fff !important;
+}
+
+/* Smooth hover effect for cards */
+.scroll-card:hover {
+  transform: scale(1.05);
+  transition: 0.3s;
+}
+
+/* Main container */
+.auto-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  padding: 10px 0;
+  scroll-behavior: smooth;
+}
+
+/* Hide scroll bar */
+.auto-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Inner row auto scroll */
+.scroll-inner {
+  display: inline-flex;
+  gap: 25px;
+  animation: autoMove 10s linear infinite;
+}
+
+/* Hover → pause auto scroll */
+.auto-scroll:hover .scroll-inner {
+  animation-play-state: paused;
+}
+
+/* Card style */
+.scroll-card {
+  width: 330px;
+  display: inline-block;
+}
+
+/* Auto-left movement */
+@keyframes autoMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Fix card layout */
+.course-item {
+  border-radius: 12px;
+  overflow: hidden;        
+  height: auto;
+  display: flex;
+  flex-direction: column;  
+  background: #fff;
+}
+
+/* Fix image overflow */
+.course-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;       
+}
+
+/* Fix title area height */
+.course-item .text-center {
+  min-height: 90px;        
+  padding: 10px 15px;
+}
+
+/* Footer sticks to bottom */
+.course-item .d-flex {
+  margin-top: auto;
+  background: #f8f9fa;
+}
+
+/* ===== Tamil Two Line Heading (FINAL FIX) ===== */
+.tamil-two-line {
+  display: flex;
+  flex-direction: column;     /* stack spans vertically */
+  align-items: flex-start;    /* left aligned */
+  line-height: 1.25;
+  max-width: 900px;           /* IMPORTANT: controls wrapping */
+}
+
+.tamil-two-line span {
+  display: block;             /* each span = new line */
+  white-space: nowrap;        /* prevent breaking into 2 lines */
+}
+
+
+/* Prevent title from spilling */
+.course-item h5 {
+  font-size: 18px;
+  line-height: 1.3;
+  margin: 0;
+  padding-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;    
+  -webkit-box-orient: vertical;
+}
+
+/* Link styling inside title */
+.course-item h5 a {
+  color: #000;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.video-text-glow {
+  position: relative;
+  z-index: 2;
+}
+
+.glow-text {
+  font-size: 55px;
+  font-weight: 800;
+  color: #00eaff;
+  text-shadow:
+     0 0 8px #00eaff,
+     0 0 16px #00eaff,
+     0 0 32px rgba(0, 234, 255, 0.8),
+     0 0 64px rgba(0, 234, 255, 0.6);
+}
+
+.glow-text-second {
+  font-size: 45px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow:
+     0 0 8px #00eaffdd,
+     0 0 16px #32e0ef60;
+}
+
+.glow-span {
+  color: #00eaff;
+  text-shadow:
+     0 0 8px rgba(0, 102, 255, 0.316),
+     0 0 14px rgba(0, 255, 255, 0.918),
+     0 0 30px rgba(0, 255, 255, 0.938);
+}
+
+.glow-para {
+  color: #c6f7ff;
+  font-size: 22px;
+  text-shadow: 0 0 6px rgba(0,255,255, .5);
+}
+
+.showcase video {
+  filter: brightness(1.0) contrast(1.1) saturate(1.2);
+}
+
+.showcase::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+   
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.showcase {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 120px 8%;
+  display: flex;
+  align-items: center;
+  background: #000;
+  overflow: hidden;
+}
+
+.showcase video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+  filter: contrast(1.1) saturate(1.2);
+}
+
+/* DARK GRADIENT OVERLAY */
+.showcase::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 1, 0),
+    rgba(12, 12, 12, 0.85)
+  );
+  z-index: 1;
+}
+
+.video-text-glow {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== REMOVE SECTION TITLE LINES (HOME ONLY) ===== */
+.section-title::before,
+.section-title::after {
+  display: none !important;
+  content: none !important;
+}
+/* ================= STUDENT TESTIMONIAL ================= */
+
+.testimonial-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* Main card */
+.testimonial-card {
+  max-width: 720px;
+  background: #e9fdff;
+  border-radius: 18px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* ===== FORCE PERFECT ROUND IMAGE ===== */
+/* ================= TESTIMONIAL IMAGE FIX ================= */
+
+/* Fixed image container (KEY PART) */
+.testimonial-image-wrapper {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 22px;
+  border-radius: 18px;
+  overflow: hidden;          /* crops image */
+  background: #e0f7fa;
+  flex-shrink: 0;            /* prevents resizing */
+}
+
+/* Image always fills wrapper */
+.testimonial-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* keeps proportions */
+  object-position: center;
+  display: block;
+}
+
+
+/* Review text */
+.feedback-text {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #333;
+  font-style: italic;
+  margin-bottom: 18px;
+}
+
+/* Student name */
+.testimonial-name {
+  font-weight: 700;
+  color: #06BBCC;
+  margin-bottom: 6px;
+}
+
+/* ===== FIX CAROUSEL ARROW HEIGHT ===== */
+.carousel .control-prev,
+.carousel .control-next {
+  height: 80px !important;      /* reduce height */
+  top: 50% !important;          /* center vertically */
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.25) !important;
+  border-radius: 10px;
+}
+
+/* Arrow icons */
+.carousel .control-arrow::before {
+  border-top-width: 12px;
+  border-bottom-width: 12px;
+  border-left-width: 8px;
+  border-right-width: 8px;
+}
+
+/* Optional: reduce hover darkness */
+.carousel .control-arrow:hover {
+  background: rgba(0,0,0,0.4) !important;
+}

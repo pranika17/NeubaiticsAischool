@@ -1,0 +1,64 @@
+/* Background */
+.register-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+/* Card */
+.register-card {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 30px;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-6px);
+}
+
+/* Gradient Text */
+.text-gradient {
+  background: linear-gradient(90deg, #38bdf8, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Inputs */
+.custom-input {
+  background: #1f2933;
+  border: 1px solid #334155;
+  color: #e5e7eb;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.custom-input::placeholder {
+  color: #94a3b8;
+}
+
+.custom-input:focus {
+  background: #1f2933;
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 0.2rem rgba(34, 211, 238, 0.25);
+  color: #fff;
+}
+
+/* Button */
+.btn-gradient {
+  background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+  color: #020617;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #22d3ee, #0ea5e9);
+  color: #020617;
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35);
+}

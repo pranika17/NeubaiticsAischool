@@ -1,0 +1,192 @@
+/* ============================= */
+/* DASHBOARD LAYOUT */
+/* ============================= */
+
+.dashboard-layout {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* REMOVE OLD margin-left logic */
+.dashboard-content {
+  width: 100%;
+  padding: 40px 30px;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* TITLE */
+/* ============================= */
+
+.upage-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #00ffff;
+  margin-bottom: 25px;
+  text-shadow: 0 0 12px rgba(0,255,255,0.4);
+}
+
+/* ============================= */
+/* TOP STATS GRID */
+/* ============================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+/* ============================= */
+/* STAT CARD */
+/* ============================= */
+
+.stat-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(0,255,255,0.25);
+  transition: 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 35px rgba(0,255,255,0.6);
+}
+
+.stat-card-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #00ffff;
+}
+
+.stat-icon {
+  font-size: 34px;
+  color: #00ffff;
+  opacity: 0.9;
+}
+
+/* ============================= */
+/* MAIN GRID (DESKTOP) */
+/* ============================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr;
+  gap: 25px;
+}
+
+/* ============================= */
+/* CHART CARD */
+/* ============================= */
+
+.chart-card,
+.side-card {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 18px;
+  border: 1px solid rgba(0,255,255,0.4);
+  box-shadow: 0 0 25px rgba(0,255,255,0.25);
+}
+
+.chart-card h6,
+.side-card h6 {
+  color: #00ffff;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+/* ============================= */
+/* BUTTON */
+/* ============================= */
+
+.cta-btn {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 18px;
+  background: #00ffff;
+  color: #000;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* ============================= */
+/* AI CHAT SECTION */
+/* ============================= */
+
+.ai-chat-section {
+  background: rgba(0,0,0,0.45);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(0,255,255,0.4);
+  margin-bottom: 30px;
+}
+
+.ai-message {
+  background: rgba(0,255,255,0.15);
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+
+  .dashboard-content {
+    padding: 25px 15px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upage-title {
+    font-size: 22px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+}

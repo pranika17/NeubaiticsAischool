@@ -1,0 +1,47 @@
+.payment-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 30px;
+  width: 350px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+}
+
+.qr-image {
+  width: 200px;
+  margin: 20px auto;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px;
+}
+
+.amount-text {
+  color: #00ffcc;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.warning-text {
+  font-size: 0.9rem;
+  color: #ffcccb;
+  margin-top: 10px;
+}
+
+.status-text {
+  margin-top: 15px;
+  font-size: 0.95rem;
+}
+
+.success-text {
+  color: #00ff99;
+}

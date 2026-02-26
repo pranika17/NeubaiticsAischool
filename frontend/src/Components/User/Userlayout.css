@@ -1,0 +1,126 @@
+/* =============================
+   LAYOUT WRAPPER
+============================= */
+
+.layout-wrapper {
+  display: flex;
+}
+
+/* =============================
+   SIDEBAR (DESKTOP)
+============================= */
+
+.user-sidebar {
+  width: 250px;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  height: calc(100vh - 70px);
+  background: rgba(6, 54, 69, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(0, 255, 255, 0.3);
+  transition: left 0.3s ease;
+  z-index: 4000;
+}
+
+/* =============================
+   MAIN CONTENT
+============================= */
+
+.user-main-wrapper {
+  margin-left: 250px;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.user-main-content {
+  padding: 100px 20px 40px 20px;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.footer-wrapper {
+  margin-left: 250px;
+}
+
+/* =============================
+   BACKGROUND
+============================= */
+
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: -1;
+}
+
+/* =============================
+   MOBILE STYLES
+============================= */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 3500;
+}
+
+/* =============================
+   MOBILE BREAKPOINT
+============================= */
+
+@media (max-width: 992px) {
+
+  .layout-wrapper {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+    position: fixed;
+    top: 80px;
+    right: 15px;
+    z-index: 5000;
+    background: #00ffff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  .user-sidebar {
+    left: -260px;
+  }
+
+  .user-sidebar.open {
+    left: 0;
+  }
+
+  .user-main-wrapper {
+    margin-left: 0;
+  }
+
+  .footer-wrapper {
+    margin-left: 0;
+  }
+
+  .user-main-content {
+    padding: 110px 15px 40px 15px;
+  }
+}

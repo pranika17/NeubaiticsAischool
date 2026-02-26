@@ -1,0 +1,287 @@
+
+.glass-card {
+  background: rgba(6, 54, 69, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.35);
+  height: 90%;
+  padding-top: 60px;
+  display: flex;
+  margin-left: -40px;
+  flex-direction: column;
+}
+
+/* =======================
+   HEADER
+======================= */
+.chat-header {
+  height: 70px;
+  padding: 10px 16px;
+  background: #063645;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #00e5ff;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chat-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* ====
+
+===================
+   CHAT BODY
+======================= */
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+/* =======================
+   ROWS
+======================= */
+.chat-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.chat-right {
+  justify-content: flex-end;
+}
+
+.chat-left {
+  justify-content: flex-start;
+}
+
+/* =======================
+   CHAT BUBBLES
+======================= */
+.chat-bubble {
+  position: relative;
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  word-wrap: break-word;
+}
+
+/* =======================
+   TEACHER MESSAGE (BLACK)
+======================= */
+.teacher-msg {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #333;
+}
+
+/* =======================
+   STUDENT MESSAGE
+======================= */
+.student-msg {
+  background: #f2f2f2;
+  color: #000000;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+/* =======================
+   MESSAGE TEXT
+======================= */
+.chat-text {
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: inherit; /* VERY IMPORTANT */
+}
+
+/* =======================
+   MESSAGE IMAGE
+======================= */
+.chat-image {
+  max-width: 260px;
+  margin-top: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+}
+
+/* =======================
+   MESSAGE ACTIONS (⋮)
+======================= */
+.msg-actions {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  color: inherit;
+}
+
+.msg-menu {
+  position: absolute;
+  top: 18px;
+  right: 0;
+  background: #063645;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  border-radius: 8px;
+  min-width: 140px;
+  z-index: 999;
+}
+
+.msg-menu button {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  color: #00ffff;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.msg-menu button:hover {
+  background: rgba(0, 255, 255, 0.2);
+}
+
+/* =======================
+   SEEN TICK
+======================= */
+.seen-tick {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 11px;
+  color: #00ffff;
+}
+
+/* =======================
+   FOOTER
+======================= */
+.chat-footer {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+  position: relative;
+}
+
+/* =======================
+   INPUT (AUTO EXPAND)
+======================= */
+.chat-input {
+  flex: 1;
+  padding: 8px 14px;
+  border-radius: 22px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  resize: none;
+  overflow: hidden;
+  max-height: 120px;
+  font-size: 14px;
+  outline: none;
+}
+
+/* =======================
+   SEND BUTTON
+======================= */
+.chat-send-btn {
+  background: #00a19a;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-send-btn:hover {
+  background: #00d4cc;
+}
+
+/* =======================
+   ATTACH BUTTON
+======================= */
+.attach-btn {
+  background: #00a19a;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.attach-btn:hover {
+  background: #00d4cc;
+}
+
+/* =======================
+   EMOJI BUTTON
+======================= */
+.emoji-btn {
+  background: #00a19a;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.emoji-btn:hover {
+  background: #00d4cc;
+}
+
+/* =======================
+   EMOJI PICKER
+======================= */
+.emoji-box {
+  position: absolute;
+  bottom: 60px;
+  left: 20px;
+  z-index: 1000;
+}
+/* =====================================
+   FORCE PERFECT ROUND IMAGE (NO LAYOUT CHANGE)
+===================================== */
+
+/* Profile image (header / list) */
+.avatar {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50% !important;
+}
+
+/* Chat message image (if used) */
+.chat-image {
+  width: 52px;              /* fixed, aligned */
+  height: 52px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  display: block;
+}

@@ -1,0 +1,135 @@
+/* =====================================
+   STUDENT CHAT ONLY (SCOPED)
+===================================== */
+
+.student-chat {
+  background: linear-gradient(180deg, #0e3b4e, #0b2f3d);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 255, 255, 0.35);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.25);
+}
+
+/* HEADER */
+.student-chat .card-header {
+  background: #0b3a4a !important;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.student-chat .card-header h5 {
+  color: #ffffff !important;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* CHAT BODY */
+.student-chat .card-body {
+  background: linear-gradient(180deg, #103c4f, #0b2f3d) !important;
+  padding: 20px;
+  height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+.student-chat .card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.student-chat .card-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+}
+
+/* MESSAGE ROW */
+.student-chat .card-body .d-flex {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+/* MESSAGE BUBBLES */
+.student-chat .p-2 {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 10px;
+  max-width: 60%;
+  word-break: break-word;
+  white-space: pre-wrap;
+  position: relative;
+}
+
+/* TEACHER (LEFT) */
+.student-chat .bg-white {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* STUDENT (RIGHT) */
+.student-chat .bg-primary {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* MESSAGE IMAGE */
+.student-chat img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+/* SEEN TICK */
+.student-chat span {
+  font-size: 11px;
+  color: #00f2ff;
+}
+
+/* DELETE BUTTON */
+.student-chat .btn-danger {
+  background: transparent;
+  border: none;
+  color: #ff4d4f;
+  padding: 0;
+  font-size: 14px;
+}
+
+/* INPUT BAR */
+.student-chat .card-footer {
+  background: #0b2f3d !important;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* INPUT */
+.student-chat input[type="text"] {
+  flex: 1;
+  border-radius: 20px;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+}
+
+/* SEND BUTTON */
+.student-chat .btn-primary {
+  background: #00bfa6 !important;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.student-chat .btn-primary:hover {
+  background: #00e6c3 !important;
+}
+
+/* EMOJI BUTTON */
+.student-chat .emoji-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #00e6c3;
+}

@@ -1,0 +1,171 @@
+/* ============================= */
+/* DESKTOP (UNCHANGED LOOK) */
+/* ============================= */
+
+.teacher-sidebar {
+  width: 250px;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+
+/* 
+.teacher-main-wrapper {
+  margin-left: 250px;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+} */
+
+.teacher-main-content {
+  padding: 90px 20px 40px 20px;
+  margin-left: 20px;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.footer-wrapper {
+  margin-left: 250px;
+}
+
+/* Background */
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.35);
+  z-index: -1;
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 4000;
+}
+
+/* ============================= */
+/* DESKTOP (UNCHANGED LOOK) */
+/* ============================= */
+
+
+
+.teacher-main-wrapper {
+  margin-left: 250px;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+
+
+
+.footer-wrapper {
+  margin-left: 250px;
+}
+
+/* Background */
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.35);
+  z-index: -1;
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 4000;
+}
+
+@media (max-width: 992px) {
+
+  .mobile-menu-btn {
+  display: block;
+  position: fixed;
+  top: 80px;
+  right: 2px;   /* ✅ moved to right */
+  left: auto;    /* ✅ IMPORTANT */
+  z-index: 5000;
+  background: #00ffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 20px;
+}
+  .teacher-sidebar {
+    
+    left: -260px;
+    transition: left 0.3s ease;
+    z-index: 4500;
+  }
+
+  .teacher-sidebar.open {
+    left: 0;
+  }
+
+   .teacher-main-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+    display: block;
+  }
+
+  .footer-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .d-flex {
+    display: block !important;
+  }
+
+
+   
+  .teacher-main-content {
+    width: 100%;
+    padding: 100px 15px 40px 15px !important;
+
+    
+  }
+}
+
