@@ -9,13 +9,59 @@ import { Carousel } from "react-responsive-carousel";
 import './Header.css'
 import wave from './darkside4.mp4'
 import './main.css'
-import ab from './about.jpg'
+import ab from './about2.png'
+import about from './about1.webp'
 import './search.css'
 import './Home.css'
 
 const baseUrl='http://127.0.0.1:8000/api'
 
 const Home = () => {
+  const aboutMediaSlides = [
+    {
+      title: "School Innovation Labs",
+      text: "Robotics, IoT, Python, and AI programs designed for hands-on school learning.",
+      image: ab,
+      tag: "Campus Story",
+      type: "image",
+    },
+    {
+      title: "College AI Programs",
+      text: "GenAI, data science, internship pathways, and future-ready skilling tracks.",
+      image: about,
+      tag: "Workshop",
+      type: "image",
+    },
+    {
+      title: "Professional Upskilling",
+      text: "Career-focused AI and ML learning journeys with practical outcomes.",
+      image: ab,
+      tag: "Training",
+      type: "image",
+    },
+    {
+      title: "Corporate Bootcamps",
+      text: "AI bootcamps and workforce transformation programs for modern teams.",
+      image: about,
+      tag: "Corporate",
+      type: "image",
+    },
+    {
+      title: "AIpreneur Journeys",
+      text: "Startup-oriented AIpreneur pathways for product thinking and execution.",
+      image: ab,
+      tag: "Startup",
+      type: "image",
+    },
+    {
+      title: "Mentored Project Delivery",
+      text: "Projects, mentorship, and real-world implementation in every learning journey.",
+      image: about,
+      tag: "Projects",
+      type: "image",
+    },
+  ];
+
   useEffect(()=>{
     document.title='Edu Learning'
   })
@@ -27,6 +73,29 @@ const Home = () => {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
+
+  useEffect(() => {
+    const nodes = document.querySelectorAll(".reveal-up-target, .reveal-side-left, .reveal-side-right");
+    if (!nodes.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.18,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
 
   const [courseData, setCourseData]=useState([]);
   const [popularcourseData,setPopularcourseData]=useState([]);
@@ -62,7 +131,7 @@ const Home = () => {
 }
 
 try{
-  axios.get(baseUrl+'/student-test/')
+  axios.get(baseUrl+'/student-test/?testimonials=1')
   .then((res)=>{
     setTestData(res.data.results)
   });
@@ -97,10 +166,10 @@ try{
 <h1
   className="head glow-text tamil-text tamil-two-line"
   style={{
-    fontSize: "clamp(46px, 4vw, 98px)",  // ✅ smaller & responsive
+    fontSize: "clamp(24px, 6.2vw, 64px)",
     fontWeight: 900,                     // ✅ reduced weight
-    maxWidth: "90%",                     // ✅ prevents cutting
-    lineHeight: "1.3"
+    maxWidth: "100%",
+    lineHeight: "1.22"
   }}
 >
   <span>கற்க கசடறக் கற்பவை கற்றபின்</span>
@@ -119,11 +188,11 @@ try{
     </section>
       {/*  End Background video player*/}
       {/*  Start Features of meetLearning*/}
-    <div class="container-xxl py-5" className='space'>
+    <div className="container-xxl py-5 space">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-item text-center pt-3">
+                    <div class="service-item text-center pt-3 home-feature-card">
                         <div class="p-4">
                             <i class="fa fa-3x fa-graduation-cap text-primary mb-4"></i>
                             <h5 class="mb-3">Skilled Instructors</h5>
@@ -132,7 +201,7 @@ try{
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="service-item text-center pt-3">
+                    <div class="service-item text-center pt-3 home-feature-card">
                         <div class="p-4">
                             <i class="fa fa-3x fa-globe text-primary mb-4"></i>
                             <h5 class="mb-3">Online Courses</h5>
@@ -141,7 +210,7 @@ try{
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="service-item text-center pt-3">
+                    <div class="service-item text-center pt-3 home-feature-card">
                         <div class="p-4">
                             <i class="fa fa-3x fa-home text-primary mb-4"></i>
                             <h5 class="mb-3">Home Assignments</h5>
@@ -150,7 +219,7 @@ try{
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
-                    <div class="service-item text-center pt-3">
+                    <div class="service-item text-center pt-3 home-feature-card">
                         <div class="p-4">
                             <i class="fa fa-3x fa-book-open text-primary mb-4"></i>
                             <h5 class="mb-3">Best Study Material</h5>
@@ -164,64 +233,122 @@ try{
       {/*  End Features of meetLearning*/}
       {/*  About Us card */}
     <div id="about" class="container-xxl py-5">
-
         <div class="container">
-            <div class="row g-5">
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" >
-                    <div class="position-relative h-100">
-                        <img class="img-fluid position-absolute w-100 h-100" src={ab}/>
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 wow fadeInUp home-about-media" data-wow-delay="0.1s" >
+                    <div class="home-about-image-frame">
+                        <img class="img-fluid home-about-image" src={about}/>
+                        
+                         
+                         
+                       
                     </div>
                 </div>
-             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
-    <h6 class="section-title text-start text-primary pe-3">About NeubAItics</h6>
-    <h1 class="mb-4">AI For Everyone. Every Stream. Every Dream.</h1>
+                <div class="col-lg-6 wow fadeInUp home-about-copy" data-wow-delay="0.3s">
+                  <div className="home-about-panel">
+                    <h6 class="section-title text-start text-primary pe-3">About NeubAItics</h6>
+                    <h1 class="mb-4">AI For Everyone. Every Stream. Every Dream.</h1>
 
-    <p class="mb-4">
-        NeubAItics School of AI is India’s trusted learning ecosystem for Artificial Intelligence and Generative AI.  
-        With 30,000+ learners trained and 50+ institutional partners, we make AI accessible for schools, colleges, 
-        professionals, corporates, and aspiring entrepreneurs. Our mission is simple — empower every learner to build skills, 
-        grow careers, and create real-world impact using AI.
-    </p>
+                    <p class="mb-3">
+                      NeubAItics School of AI creates practical learning pathways for schools, colleges, professionals, corporates, and entrepreneurs, making AI easier to learn, apply, and grow with.
+                    </p>
 
-    <p class="mb-4">
-        From robotics labs and IoT programs to industry-ready courses in Machine Learning, Data Science, 
-        Business Analytics, and Agentic AI — our programs combine hands-on projects, practical learning, 
-        and expert mentorship. Whether you're a student starting your journey or a professional preparing for 
-        the future of work, NeubAItics helps you learn, innovate, and lead with confidence.
-    </p>
+                    <p class="mb-0">
+                      Our ecosystem connects robotics, IoT, GenAI, machine learning, data science, internships, bootcamps, startup support, and hands-on projects so each learner can build real skills and create visible outcomes.
+                    </p>
 
-    <div class="row gy-2 gx-4 mb-4">
+                    <div className="about-highlight-strip">
+                      <div className="about-highlight-card">
+                        <span className="about-highlight-value">1,00,000+</span>
+                        <span className="about-highlight-label">Learners Trained</span>
+                      </div>
+                      <div className="about-highlight-card">
+                        <span className="about-highlight-value">50+</span>
+                        <span className="about-highlight-label">Institutional Partners</span>
+                      </div>
+                      <div className="about-highlight-card">
+                        <span className="about-highlight-value">Hands-On</span>
+                        <span className="about-highlight-label">Projects & Mentorship</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
 
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Schools → Robotics, IoT, Python & AI Labs</p>
-        </div>
+            <div className="about-showcase reveal-up-target">
+              <div className="about-showcase-header">
+                <div>
+                  <span className="about-showcase-kicker">Office Gallery</span>
+                  <h3 className="about-showcase-title">Replace dull cards with a media slider</h3>
+                </div>
+                <p className="about-showcase-note">
+                  Add 5 or 10 photos and they will slide automatically. If you later add office videos, the same section can show them too.
+                </p>
+              </div>
 
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Colleges → AI, GenAI, DS & Internships</p>
-        </div>
+              <Carousel
+                className="about-media-carousel"
+                showArrows={true}
+                showThumbs={false}
+                showStatus={false}
+                showIndicators={true}
+                infiniteLoop={true}
+                autoPlay={true}
+                interval={4200}
+                swipeable={true}
+                emulateTouch={true}
+              >
+                {aboutMediaSlides.map((slide, index) => (
+                  <div key={`${slide.title}-${index}`} className="about-media-slide">
+                    <div className="about-media-stage">
+                      <div className="about-media-visual">
+                        {slide.type === "video" ? (
+                          <video
+                            className="about-slide-media"
+                            src={slide.image}
+                            poster={slide.poster}
+                            controls
+                            playsInline
+                          />
+                        ) : (
+                          <img className="about-slide-media" src={slide.image} alt={slide.title} />
+                        )}
+                        <span className="about-media-badge">{slide.tag}</span>
+                      </div>
 
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Professionals → Career-Focused AI/ML Upskilling</p>
-        </div>
+                      <div className="about-media-copy">
+                        <span className="about-media-count">
+                          {String(index + 1).padStart(2, "0")} / {String(aboutMediaSlides.length).padStart(2, "0")}
+                        </span>
+                        <h4>{slide.title}</h4>
+                        <p>{slide.text}</p>
+                        <div className="about-media-meta">
+                          <span>Image / Video Ready</span>
+                          <span>Auto Slide Enabled</span>
+                          <span>Office Showcase Section</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </Carousel>
 
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Corporates → AI Bootcamps & Workforce Training</p>
-        </div>
-
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Entrepreneurs → AIpreneur Startup Programs</p>
-        </div>
-
-        <div class="col-sm-6">
-            <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Hands-On Projects & Real-World Application</p>
-        </div>
-
-    </div>
-</div>
-
+              <div className="about-media-thumb-grid">
+                {aboutMediaSlides.map((slide, index) => (
+                  <div key={`${slide.title}-thumb-${index}`} className="about-media-thumb">
+                    <img src={slide.image} alt={slide.title} />
+                    <div>
+                      <strong>{slide.title}</strong>
+                      <span>{slide.tag}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
         </div>
     </div>
+
+  
       {/*  About Us card */}
 
 

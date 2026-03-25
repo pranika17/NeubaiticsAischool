@@ -117,24 +117,49 @@
 
 // export default TeacherSidebar
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./TeacherSidebar.css";
 
+const baseUrl = "http://127.0.0.1:8000/api";
+
 const TeacherSidebar = ({ closeSidebar }) => {
 
   const location = useLocation();
+  const teacherId = localStorage.getItem("teacherId");
+  const [chatUnread, setChatUnread] = useState(0);
+  const [groupUnread, setGroupUnread] = useState(0);
 
   useEffect(() => {
     document.title = "LMS | Menu";
   }, []);
 
+  useEffect(() => {
+    if (!teacherId) return;
+
+    const loadCounts = () => {
+      fetch(`${baseUrl}/unread-count/${teacherId}/`)
+        .then((res) => res.json())
+        .then((data) => setChatUnread(Number(data.count || 0)))
+        .catch(() => setChatUnread(0));
+
+      fetch(`${baseUrl}/teacher-group-unread-count/${teacherId}/`)
+        .then((res) => res.json())
+        .then((data) => setGroupUnread(Number(data.count || 0)))
+        .catch(() => setGroupUnread(0));
+    };
+
+    loadCounts();
+    const timer = setInterval(loadCounts, 10000);
+    return () => clearInterval(timer);
+  }, [teacherId]);
+
   const menuItems = [
     { path: "/teacher-dashboard", label: "Dashboard", icon: "bi-speedometer2" },
-    { path: "/teacher-my-course", label: "My Courses", icon: "bi-journal-bookmark" },
+    { path: "/teacher-my-course", label: "My Courses", icon: "bi-journal-bookmark", badge: groupUnread },
     { path: "/add-course", label: "Add Course", icon: "bi-plus-circle" },
-    { path: "/my-users", label: "My Users", icon: "bi-people" },
+    { path: "/my-users", label: "My Users", icon: "bi-people", badge: chatUnread },
     { path: "/quiz", label: "All Quiz", icon: "bi-list-check" },
     { path: "/add-quiz", label: "Add Quiz", icon: "bi-plus-square" },
     { path: "/teacher-quiz-page", label: "Quiz Management", icon: "bi-bar-chart" },
@@ -167,6 +192,7 @@ const TeacherSidebar = ({ closeSidebar }) => {
 
               <i className={`bi ${item.icon} tsidebar-icon`}></i>
               <span>{item.label}</span>
+              {item.badge > 0 && <span className="tsidebar-badge">{item.badge}</span>}
             </Link>
           );
         })}

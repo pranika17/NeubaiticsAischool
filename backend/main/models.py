@@ -1,5 +1,7 @@
 from django.db import models
+from django.utils import timezone
 from django.core import serializers
+from django.core.exceptions import ValidationError
 
 # models.py
 from django.db import models
@@ -114,6 +116,7 @@ class Chapter(models.Model):
     title=models.CharField(max_length=150,null=True)
     description=models.TextField()
     video = models.FileField(upload_to='chapter_videos/', null=True, max_length=200)
+    video_url = models.URLField(null=True, blank=True)
 
     remarks=models.TextField(null=True)
 
@@ -289,17 +292,34 @@ class Quiz(models.Model):
          verbose_name_plural="11. Quizs"
 
 class QuizQuestions(models.Model):
-    quiz=models.ForeignKey(Quiz,on_delete=models.CASCADE,null=True)
-    questions=models.CharField(max_length=200)
-    ans1=models.CharField(max_length=200)
-    ans2=models.CharField(max_length=200)
-    ans3=models.CharField(max_length=200)
-    ans4=models.CharField(max_length=200)
-    right_ans=models.CharField(max_length=200)
-    add_time=models.DateTimeField(auto_now_add=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True)
+
+    question_type = models.CharField(
+        max_length=20,
+        choices=[
+            ("mcq", "MCQ"),
+            ("coding", "Coding"),
+        ],
+        default="mcq"
+    )
+
+    questions = models.TextField()  # change from CharField to TextField
+
+    # MCQ Fields
+    ans1 = models.CharField(max_length=300, blank=True, null=True)
+    ans2 = models.CharField(max_length=300, blank=True, null=True)
+    ans3 = models.CharField(max_length=300, blank=True, null=True)
+    ans4 = models.CharField(max_length=300, blank=True, null=True)
+    right_ans = models.CharField(max_length=300, blank=True, null=True)
+
+    # Coding Fields
+    coding_starter_code = models.TextField(blank=True, null=True)
+    coding_solution = models.TextField(blank=True, null=True)
+
+    add_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-         verbose_name_plural="12. Quiz Question&answer "
+        verbose_name_plural = "12. Quiz Questions"
 
 class CourseQuiz(models.Model):
     teacher=models.ForeignKey(Teacher,on_delete=models.CASCADE,null=True)
@@ -361,6 +381,8 @@ class TeacherStudentChat(models.Model):
     is_read = models.BooleanField(default=False)
     message = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='chat_images/', null=True, blank=True)
+    audio = models.FileField(upload_to='chat_audio/', null=True, blank=True)
+    audio_transcript = models.TextField(null=True, blank=True)
 
 
     class Meta:
@@ -392,6 +414,16 @@ class CourseChatGroup(models.Model):
 
 
 class CourseGroupMessage(models.Model):
+    MESSAGE = "message"
+    INSTRUCTION = "instruction"
+    MEETING = "meeting"
+
+    MESSAGE_TYPE_CHOICES = [
+        (MESSAGE, "Message"),
+        (INSTRUCTION, "Instruction"),
+        (MEETING, "Meeting Link"),
+    ]
+
     group = models.ForeignKey(CourseChatGroup, on_delete=models.CASCADE)
 
     sender_type = models.CharField(
@@ -404,11 +436,42 @@ class CourseGroupMessage(models.Model):
     )
 
     message = models.TextField()
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPE_CHOICES, default=MESSAGE)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    meeting_link = models.URLField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['timestamp']
         verbose_name_plural = "Group Messages"
+
+
+class GroupChatReadState(models.Model):
+    group = models.ForeignKey(CourseChatGroup, on_delete=models.CASCADE, related_name="read_states")
+    teacher = models.ForeignKey(Teacher, null=True, blank=True, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, null=True, blank=True, on_delete=models.CASCADE)
+    last_seen_at = models.DateTimeField(default=timezone.now)
+
+    def clean(self):
+        if bool(self.teacher) == bool(self.student):
+            raise ValidationError("Exactly one of teacher or student must be set.")
+
+        lookup = GroupChatReadState.objects.filter(group=self.group)
+        if self.pk:
+            lookup = lookup.exclude(pk=self.pk)
+
+        if self.teacher and lookup.filter(teacher=self.teacher).exists():
+            raise ValidationError("Read state already exists for this teacher in the group.")
+
+        if self.student and lookup.filter(student=self.student).exists():
+            raise ValidationError("Read state already exists for this student in the group.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Group Chat Read States"
 
 
 
@@ -571,3 +634,110 @@ class StudentCertificate(models.Model):
 
     def __str__(self):
         return f"{self.student.fullname} - {self.course.title}"
+
+
+class MockInterview(models.Model):
+    INTRO = "intro"
+    TECHNICAL = "technical"
+    CODING = "coding"
+    HR = "hr"
+    FULL = "full"
+
+    INTERVIEW_TYPE_CHOICES = [
+        (INTRO, "Self Introduction"),
+        (TECHNICAL, "Technical"),
+        (CODING, "Coding"),
+        (HR, "HR"),
+        (FULL, "Full Interview"),
+    ]
+
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+
+    STATUS_CHOICES = [
+        (NOT_STARTED, "Not Started"),
+        (IN_PROGRESS, "In Progress"),
+        (COMPLETED, "Completed"),
+    ]
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="mock_interviews")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="mock_interviews")
+    interview_type = models.CharField(max_length=20, choices=INTERVIEW_TYPE_CHOICES, default=FULL)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_STARTED)
+    total_questions = models.PositiveIntegerField(default=0)
+    asked_questions = models.PositiveIntegerField(default=0)
+    overall_score = models.PositiveIntegerField(default=0)
+    score_intro = models.PositiveIntegerField(default=0)
+    score_technical = models.PositiveIntegerField(default=0)
+    score_coding = models.PositiveIntegerField(default=0)
+    score_communication = models.PositiveIntegerField(default=0)
+    strengths = models.TextField(blank=True, null=True)
+    weaknesses = models.TextField(blank=True, null=True)
+    improvement_plan = models.TextField(blank=True, null=True)
+    recommended_topics = models.TextField(blank=True, null=True)
+    ai_summary = models.TextField(blank=True, null=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+        verbose_name_plural = "Mock Interviews"
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.course.title} ({self.interview_type})"
+
+
+class MockInterviewQuestion(models.Model):
+    INTRO = "intro"
+    TECHNICAL = "technical"
+    CODING = "coding"
+    HR = "hr"
+
+    ROUND_CHOICES = [
+        (INTRO, "Self Introduction"),
+        (TECHNICAL, "Technical"),
+        (CODING, "Coding"),
+        (HR, "HR"),
+    ]
+
+    interview = models.ForeignKey(MockInterview, on_delete=models.CASCADE, related_name="questions")
+    round_type = models.CharField(max_length=20, choices=ROUND_CHOICES)
+    question_text = models.TextField()
+    ideal_points = models.TextField(blank=True, null=True)
+    coding_prompt = models.TextField(blank=True, null=True)
+    expected_answer = models.TextField(blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    is_answered = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name_plural = "Mock Interview Questions"
+
+    def __str__(self):
+        return f"{self.interview_id} - Q{self.order}"
+
+
+class MockInterviewAnswer(models.Model):
+    interview = models.ForeignKey(MockInterview, on_delete=models.CASCADE, related_name="answers")
+    question = models.ForeignKey(MockInterviewQuestion, on_delete=models.CASCADE, related_name="answers")
+    answer_text = models.TextField(blank=True, null=True)
+    score = models.PositiveIntegerField(default=0)
+    communication_score = models.PositiveIntegerField(default=0)
+    technical_score = models.PositiveIntegerField(default=0)
+    confidence_score = models.PositiveIntegerField(default=0)
+    feedback = models.TextField(blank=True, null=True)
+    improvement_tip = models.TextField(blank=True, null=True)
+    suggested_followup = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("interview", "question")
+        ordering = ["question__order", "id"]
+        verbose_name_plural = "Mock Interview Answers"
+
+    def __str__(self):
+        return f"{self.interview_id} - Answer {self.question_id}"

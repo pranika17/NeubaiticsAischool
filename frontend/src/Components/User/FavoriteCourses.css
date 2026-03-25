@@ -1,13 +1,7 @@
 /* ===============================
-   FAVORITE COURSES – GLASS CARD
-   (Same style as Quiz Result)
+   FAVORITE COURSES - GLASS CARD
 ================================ */
 
-/* Page background already handled globally */
-
-/* ===============================
-   CARD
-================================ */
 .fav-card {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(14px);
@@ -17,11 +11,11 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   color: #ffffff;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-/* ===============================
-   CARD HEADER
-================================ */
 .fav-card-header {
   padding: 16px 22px;
   font-size: 18px;
@@ -34,16 +28,10 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ===============================
-   CARD BODY
-================================ */
 .fav-card-body {
   padding: 18px;
 }
 
-/* ===============================
-   TABLE
-================================ */
 .fav-table {
   width: 100%;
   border-collapse: collapse;
@@ -63,9 +51,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* ===============================
-   LINKS
-================================ */
 .fav-table a {
   color: #00ffff;
   font-weight: 500;
@@ -76,16 +61,10 @@
   text-decoration: underline;
 }
 
-/* ===============================
-   ROW HOVER
-================================ */
 .fav-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* ===============================
-   EMPTY STATE
-================================ */
 .empty-text {
   text-align: center;
   padding: 30px;
@@ -93,12 +72,27 @@
   font-style: italic;
 }
 
-/* ===============================
-   RESPONSIVE
-================================ */
+.dashboard-center {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 1400px) {
+  .fav-card {
+    max-width: 850px;
+  }
+}
+
+@media (max-width: 992px) {
+  .fav-card {
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .fav-card {
     margin-top: 15px;
+    max-width: 100%;
   }
 
   .fav-table thead {
@@ -117,51 +111,5 @@
     display: block;
     padding: 8px 10px;
     border: none;
-  }
-}
-/* ===============================
-   CENTER & REDUCE TABLE WIDTH
-================================ */
-
-/* Center the entire card */
-.fav-card {
-  max-width: 900px;      /* 👈 controls width */
-  margin: 0 auto;        /* 👈 centers horizontally */
-}
-
-/* Optional: slightly narrower on large screens */
-@media (min-width: 1400px) {
-  .fav-card {
-    max-width: 850px;
-  }
-}
-
-/* Mobile full width */
-@media (max-width: 768px) {
-  .fav-card {
-    max-width: 100%;
-  }
-}
-/* ===============================
-   FIX FAVORITE CARD HORIZONTAL POSITION
-================================ */
-
-/* Dashboard content area */
-.dashboard-center {
-  display: flex;
-  justify-content: center; /* keeps natural center */
-}
-
-/* Move card slightly RIGHT to compensate sidebar */
-.fav-card {
-  max-width: 900px;
-  width: 100%;
-  margin-left: 90px;   /* 👈 THIS is the key */
-}
-
-/* Responsive: remove shift on small screens */
-@media (max-width: 992px) {
-  .fav-card {
-    margin-left: 0;
   }
 }

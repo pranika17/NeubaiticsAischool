@@ -188,6 +188,7 @@ const Header = () => {
             <Link to="/category" className="nav-item nav-link" onClick={closeNavbar}>Category</Link>
             <Link to="/all-courses" className="nav-item nav-link" onClick={closeNavbar}>Courses</Link>
             <Link to="/work-shop" className="nav-item nav-link" onClick={closeNavbar}>WorkShop & Events</Link>
+            <Link to="/faq" className="nav-item nav-link" onClick={closeNavbar}>FAQ</Link>
 
             {/* TEACHER MENU */}
             <div className="nav-item dropdown">

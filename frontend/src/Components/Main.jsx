@@ -1,6 +1,5 @@
 import React from 'react'
 import Home from './Home'
-import Header from './Header'
 import Footer from './Footer'
 import CourseDetail from './CourseDetail'
 import TeacherDetails from './TeacherDetails'
@@ -65,6 +64,10 @@ import Category from '../Category'
 import Faq from './Faq'
 import Pages from './Pages'
 import MyTeachers from './User/MyTeachers'
+import StudentFeedback from './User/StudentFeedback'
+import StudentInterviewDashboard from './User/StudentInterviewDashboard'
+import StudentInterviewSession from './User/StudentInterviewSession'
+import StudentInterviewReport from './User/StudentInterviewReport'
 import MiniVideoPlayer from './MiniVideoPlayer'
 import Policy from './Policy'
 
@@ -74,6 +77,8 @@ import EditQuizQuestion from './Teacher/EditQuizQuestion'
 import QuizList from './User/QuizList'
 import TeacherChatList from './Teacher/TeacherChatList'
 import TeacherChatBox from './Teacher/TeacherChatBox'
+import TeacherCourseGroupChat from './Teacher/TeacherCourseGroupChat'
+import StudentCourseGroupChat from './User/StudentCourseGroupChat'
 
 
 // ⭐ Import Teacher Layout
@@ -88,13 +93,12 @@ import WorkShop from './WorkShop'
 import WorkshopPayment from './WorkShopPayment'
 import Blog from './Blog'
 import CertificateGenerator from './Certificate/CertificateGenerator'
+import ControlsOnlyLayout from './Common/ControlsOnlyLayout'
 
 
 const Main = () => {
   return (
     <BrowserRouter>
-      <Header />
-
       <Routes>
         {/* ------------------ PAGES WITHOUT SIDEBAR ------------------ */}
         <Route path="/" element={<NoSidebarLayout><Home /></NoSidebarLayout>} />
@@ -107,13 +111,17 @@ const Main = () => {
   <Route path="/popular-courses" element={<NoSidebarLayout><PopularCourses /></NoSidebarLayout>} />
   <Route path="/course/:category_id/:category_slug" element={<NoSidebarLayout><CategoryCourses /></NoSidebarLayout>} />
   <Route path="/aboutus" element={<NoSidebarLayout><About /></NoSidebarLayout>} />
+  <Route path="/faq" element={<NoSidebarLayout><Faq /></NoSidebarLayout>} />
   <Route path="/policy" element={<NoSidebarLayout><Policy /></NoSidebarLayout>} />
   <Route path="/page/:page_id/:page_slug" element={<NoSidebarLayout><Pages /></NoSidebarLayout>} />
   <Route path="/search/:searchstring" element={<NoSidebarLayout><Search /></NoSidebarLayout>} />
   <Route path="/mini/:course_id" element={<NoSidebarLayout><MiniVideoPlayer /></NoSidebarLayout>} />
   <Route path="/category" element={<NoSidebarLayout><Category /></NoSidebarLayout>} />
   <Route path="/work-shop" element={<NoSidebarLayout><WorkShop /></NoSidebarLayout>} />
+  <Route path="/quiz-result/:quiz_id/:student_id" element={<ControlsOnlyLayout><QuizResult /></ControlsOnlyLayout>} />
   <Route path="/regwork/:id"element={<NoSidebarLayout><RegisterWorkshop /></NoSidebarLayout> }
+
+  
 />
 <Route
   path="/workshop-payment/:registrationId"
@@ -130,6 +138,11 @@ const Main = () => {
         <Route path="/my-courses" element={<UserLayout><MyCourses /></UserLayout>} />
         <Route path="/favorite-courses" element={<UserLayout><FavoriteCourses /></UserLayout>} />
         <Route path="/my-teachers" element={<UserLayout><MyTeachers /></UserLayout>} />
+        <Route path="/student-feedback" element={<UserLayout><StudentFeedback /></UserLayout>} />
+        <Route path="/mock-interviews" element={<UserLayout><StudentInterviewDashboard /></UserLayout>} />
+        <Route path="/mock-interviews/:courseId" element={<UserLayout><StudentInterviewDashboard /></UserLayout>} />
+        <Route path="/mock-interview/session/:interviewId" element={<UserLayout><StudentInterviewSession /></UserLayout>} />
+        <Route path="/mock-interview/report/:interviewId" element={<UserLayout><StudentInterviewReport /></UserLayout>} />
         <Route path="/recommended-courses" element={<UserLayout><RecomemdedCourses /></UserLayout>} />
         <Route path="/profile-setting" element={<UserLayout><ProfileSetting /></UserLayout>} />
         <Route path="/change-password" element={<UserLayout><ChangePassword /></UserLayout>} />
@@ -137,6 +150,7 @@ const Main = () => {
         <Route path="/my-assignments" element={<UserLayout><StudentAssignments /></UserLayout>} />
         <Route path="/course-quiz/:course_id" element={<UserLayout><CourseQuizList /></UserLayout>} />
         <Route path="/quizzes" element={<UserLayout><QuizList /></UserLayout>} />
+        <Route path="/user/detail/:course_id" element={<UserLayout><CourseDetail /></UserLayout>} />
         <Route path="/user/study-material/:course_id" element={<UserLayout><StudyStudentMaterial /></UserLayout>} />
         <Route path= "/take-quiz/:quiz_id" element= {<UserLayout><TakeQuiz  /></UserLayout>} />
         
@@ -150,6 +164,10 @@ const Main = () => {
         <Route
           path="/student/chat/:studentId/:teacherId"
           element={<UserLayout><StudentChatBox /></UserLayout>}
+        />
+        <Route
+          path="/student/course-chat/:course_id"
+          element={<UserLayout><StudentCourseGroupChat /></UserLayout>}
         />
 
 
@@ -172,6 +190,10 @@ const Main = () => {
           path="/teacher/chat/:teacherId/:studentId"
           element={<TeacherLayout><TeacherChatBox /></TeacherLayout>}
         />
+        <Route
+          path="/teacher/course-chat/:course_id"
+          element={<TeacherLayout><TeacherCourseGroupChat /></TeacherLayout>}
+        />
 
 
         <Route path="/add-question/:quiz_id" element={<TeacherLayout><AddQuizQuestion /></TeacherLayout>} />
@@ -188,7 +210,7 @@ const Main = () => {
        
 
         <Route path="/add-study/:course_id" element={<TeacherLayout><AddStudyMaterial /></TeacherLayout>} />
-        <Route path="/quiz-result/:quiz_id/:student_id" element={<TeacherLayout><QuizResult /></TeacherLayout>} />
+       
         <Route path="/add-assignment/:teacher_id/:student_id" element={<TeacherLayout><AddAssignment /></TeacherLayout>} />
         <Route
   path="/show-assignment/:teacher_id/:student_id"

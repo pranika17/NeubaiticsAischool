@@ -40,6 +40,27 @@
   font-weight: 500;
 }
 
+.chapter-video-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chapter-source-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #dfffff;
+}
+
+.chapter-source-option input {
+  accent-color: #00ffff;
+}
+
 /* Input fields */
 .chapterglass-input {
   background: rgba(255, 255, 255, 0.05) !important;

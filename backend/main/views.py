@@ -5,9 +5,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from django.contrib.flatpages.models import FlatPage
-from . serializers import TeacherSerializer,WorkshopSerializer,StudentCourseEnrollSerializer,ChapterSerializer,TeacherStudentChatSerializer,FlatPageSerializer,FaqSerializer,StudyMaterialSerializer,AttempQuizSerializer,QuestionSerializer,CourseQuizSerializer,QuizSerializer,StudentDashboardSerializer,StudentFavoriteCourseSerializer,StudentAssignmentSerializer,CategorySerializer,CourseSerializer,ChapterSerializer,StudentSerializer,StudentCourseEnrollSerializer,CourseRatingSerializer,TeacherDashboardSerializer
+from . serializers import TeacherSerializer,WorkshopSerializer,StudentCourseEnrollSerializer,ChapterSerializer,TeacherStudentChatSerializer,FlatPageSerializer,FaqSerializer,StudyMaterialSerializer,AttempQuizSerializer,QuestionSerializer,CourseQuizSerializer,QuizSerializer,StudentDashboardSerializer,StudentFavoriteCourseSerializer,StudentAssignmentSerializer,CategorySerializer,CourseSerializer,ChapterSerializer,StudentSerializer,StudentCourseEnrollSerializer,CourseRatingSerializer,TeacherDashboardSerializer,MockInterviewSerializer,MockInterviewQuestionSerializer,MockInterviewAnswerSerializer
 from rest_framework import permissions
-from django.db.models import Q
+from django.db.models import Q, Count
 from . import models
 from rest_framework.pagination import PageNumberPagination
 import json
@@ -24,7 +24,7 @@ from . import models
 from .serializers import TeacherSerializer
 from . import models
 
-from .models import TeacherStudentChat, Teacher, StudentCourseEnrollment
+from .models import TeacherStudentChat, Teacher, StudentCourseEnrollment, CourseChatGroup, CourseGroupMessage, Course, GroupChatReadState
 
 
 from rest_framework.decorators import api_view
@@ -33,6 +33,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.utils.timezone import now
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from .models import (
     Student, Course, StudentCourseEnrollment,
@@ -44,6 +47,32 @@ from .certificate.certificate import (
     generate_certificate_if_approved
 )
 
+CHAT_TOKEN_SIGNER = TimestampSigner(salt="lms-chat-auth")
+CHAT_TOKEN_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
+
+
+def issue_chat_token(role, user_id):
+    payload = f"{role}:{int(user_id)}"
+    return CHAT_TOKEN_SIGNER.sign(payload)
+
+
+def parse_chat_token(token):
+    try:
+        raw = CHAT_TOKEN_SIGNER.unsign(token, max_age=CHAT_TOKEN_MAX_AGE_SECONDS)
+    except (BadSignature, SignatureExpired):
+        return None
+
+    if ":" not in raw:
+        return None
+
+    role, user_id = raw.split(":", 1)
+    if role not in {"teacher", "student"}:
+        return None
+
+    try:
+        return {"role": role, "user_id": int(user_id)}
+    except ValueError:
+        return None
 
 
 
@@ -105,10 +134,15 @@ def teacher_login(request):
 
     try:
         data = json.loads(request.body)
-        email = data.get("email")
+        email = str(data.get("email", "")).strip().lower()
         password = data.get("password")
     except:
         return JsonResponse({"bool": False, "msg": "Invalid request"})
+
+    try:
+        validate_email(email)
+    except DjangoValidationError:
+        return JsonResponse({"bool": False, "msg": "Please provide a valid email address."})
 
     try:
         teacher = Teacher.objects.get(email=email)
@@ -117,11 +151,19 @@ def teacher_login(request):
 
     # Approval check
     if not teacher.is_approved:
-        return JsonResponse({"bool": False, "msg": "waiting_approval"})
+        return JsonResponse({
+            "bool": False,
+            "msg": "waiting_approval",
+            "detail": "Your teacher account is waiting for admin approval. After approval, please login."
+        })
 
     # Password check (if hashed)
     if check_password(password, teacher.password):
-        return JsonResponse({"bool": True, "teacher_id": teacher.id})
+        return JsonResponse({
+            "bool": True,
+            "teacher_id": teacher.id,
+            "chat_token": issue_chat_token("teacher", teacher.id),
+        })
 
     return JsonResponse({"bool": False, "msg": "Invalid credentials"})
 
@@ -205,6 +247,7 @@ from .serializers import ChapterSerializer
 class ChapterList(generics.ListCreateAPIView):
     queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -212,6 +255,7 @@ class ChapterList(generics.ListCreateAPIView):
 
 class CourseChapterList(generics.ListCreateAPIView):
     serializer_class = ChapterSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
@@ -225,6 +269,7 @@ class CourseChapterList(generics.ListCreateAPIView):
 class ChapterDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -280,8 +325,13 @@ def student_login(request):
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "").strip()
 
+    try:
+        validate_email(email)
+    except DjangoValidationError:
+        return JsonResponse({"bool": False, "msg": "Please provide a valid email address."})
+
     student = Student.objects.filter(
-        Q(email__iexact=email) | Q(username__iexact=email)
+        Q(email__iexact=email)
     ).first()
 
     if not student:
@@ -291,11 +341,16 @@ def student_login(request):
         return JsonResponse({"bool": False, "msg": "Invalid credentials"})
 
     if not student.is_approved:
-        return JsonResponse({"bool": False, "msg": "waiting_approval"})
+        return JsonResponse({
+            "bool": False,
+            "msg": "waiting_approval",
+            "detail": "Your student account is waiting for admin approval. After approval, please login."
+        })
 
     return JsonResponse({
         "bool": True,
-        "student_id": student.id
+        "student_id": student.id,
+        "chat_token": issue_chat_token("student", student.id),
     })
 
 
@@ -381,17 +436,66 @@ class CourseRatingList(generics.ListCreateAPIView):
     pagination_class=StandardResultSetPagination
 
     def get_queryset(self):
+        student_id = self.request.GET.get("student_id")
+        if student_id:
+            return models.CourseRating.objects.filter(
+                student_id=student_id,
+                course__isnull=False
+            ).order_by("-review_time")
         if 'popular' in self.request.GET:
             sql="SELECT *, AVG(cr.rating) as avg_rating FROM main_courserating as cr INNER JOIN main_course as c ON cr.course_id=c.id GROUP BY c.id ORDER BY avg_rating desc LIMIT 3"
             return models.CourseRating.objects.raw(sql)
         if 'all' in self.request.GET:
             sql="SELECT *, AVG(cr.rating) as avg_rating FROM main_courserating as cr INNER JOIN main_course as c ON cr.course_id=c.id GROUP BY c.id ORDER BY avg_rating desc"
             return models.CourseRating.objects.raw(sql)
+        if 'testimonials' in self.request.GET or 'student-test' in self.request.path:
+            return models.CourseRating.objects.filter(
+                course__isnull=False,
+                reviews__isnull=False
+            ).exclude(reviews__exact="").order_by('-review_time')
         return models.CourseRating.objects.filter(course__isnull=False).order_by('-rating')
 
 
     def get_serializer_context(self):
         return {"request": self.request}
+
+    def create(self, request, *args, **kwargs):
+        course_id = request.data.get("course")
+        student_id = request.data.get("student")
+        rating = request.data.get("rating")
+        reviews = request.data.get("reviews")
+
+        if not course_id or not student_id:
+            return Response({"error": "course and student are required"}, status=400)
+
+        existing = models.CourseRating.objects.filter(
+            course_id=course_id,
+            student_id=student_id
+        ).first()
+
+        payload = request.data.copy()
+        serializer_context = self.get_serializer_context()
+
+        if existing:
+            serializer = self.get_serializer(
+                existing,
+                data={
+                    "course": course_id,
+                    "student": student_id,
+                    "rating": rating,
+                    "reviews": reviews,
+                },
+                partial=True,
+                context=serializer_context,
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data, status=200)
+
+        serializer = self.get_serializer(data=payload, context=serializer_context)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=201)
 
 def fetch_rating_status(request,student_id,course_id):
     student=models.Student.objects.filter(id=student_id).first()
@@ -676,13 +780,16 @@ from .serializers import QuizSerializer
 class StudentQuizzes(APIView):
     def get(self, request, student_id):
         # Step 1: Get courses student is enrolled in
-        enrolled_courses = StudentCourseEnrollment.objects.filter(student_id=student_id).values_list('course_id', flat=True)
+        enrolled_courses = StudentCourseEnrollment.objects.filter(
+            student_id=student_id,
+            status="approved"
+        ).values_list('course_id', flat=True)
 
         # Step 2: Get quizzes assigned to these courses
         course_quizzes = CourseQuiz.objects.filter(course_id__in=enrolled_courses).select_related('quiz')
 
         # Step 3: Extract unique quiz objects
-        quiz_list = [cq.quiz for cq in course_quizzes]
+        quiz_list = list({cq.quiz.id: cq.quiz for cq in course_quizzes}.values())
 
         # Step 4: Serialize quizzes
         serializer = QuizSerializer(quiz_list, many=True)
@@ -731,6 +838,19 @@ class QuizQuestionList(generics.GenericAPIView):
     serializer_class = QuestionSerializer
 
     def get(self, request, quiz_id, question_id=None, limit=None):
+        student_id = request.query_params.get("student_id")
+        if student_id:
+            try:
+                student_id_int = int(student_id)
+            except (TypeError, ValueError):
+                return Response({"error": "Invalid student_id"}, status=400)
+
+            if not _student_has_quiz_access(student_id_int, quiz_id):
+                return Response(
+                    {"error": "You are not enrolled in the course for this quiz."},
+                    status=403
+                )
+
         # Get all questions of the quiz ordered by ID
         questions_list = list(QuizQuestions.objects.filter(quiz_id=quiz_id).order_by('id'))
 
@@ -787,7 +907,8 @@ class CourseQuizQuestions(APIView):
         # check enrollment
         enrolled = StudentCourseEnrollment.objects.filter(
             student_id=student_id,
-            course_id=course_id
+            course_id=course_id,
+            status="approved"
         ).exists()
 
         if not enrolled:
@@ -825,9 +946,37 @@ from . import models, serializers
 class AttempQuizList(generics.ListCreateAPIView):
     serializer_class = serializers.AttempQuizSerializer
 
+    def list(self, request, *args, **kwargs):
+        quiz_id = self.kwargs.get('quiz_id')
+        teacher_id = request.query_params.get("teacher_id")
+
+        if quiz_id and teacher_id:
+            try:
+                teacher_id_int = int(teacher_id)
+            except (TypeError, ValueError):
+                return JsonResponse({"error": "Invalid teacher_id"}, status=400)
+
+            if not _teacher_owns_quiz(teacher_id_int, quiz_id):
+                return JsonResponse(
+                    {"error": "You are not allowed to view this quiz attempts."},
+                    status=403
+                )
+
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         quiz_id = self.kwargs.get('quiz_id')
         if quiz_id:
+            teacher_id = self.request.query_params.get("teacher_id")
+            if teacher_id:
+                try:
+                    teacher_id_int = int(teacher_id)
+                except (TypeError, ValueError):
+                    return models.AttemptQuiz.objects.none()
+
+                if not _teacher_owns_quiz(teacher_id_int, quiz_id):
+                    return models.AttemptQuiz.objects.none()
+
             # MySQL-compatible way: get latest attempt per student
             latest_attempts = (
                 models.AttemptQuiz.objects
@@ -845,7 +994,38 @@ class AttempQuizList(generics.ListCreateAPIView):
         question_id = request.data.get('question')
         selected_answer = request.data.get('right_ans')
 
-        question = models.QuizQuestions.objects.get(id=question_id)
+        if not student_id or not quiz_id or not question_id:
+            return JsonResponse(
+                {"error": "student, quiz and question are required"},
+                status=400
+            )
+
+        try:
+            student_id = int(student_id)
+            quiz_id = int(quiz_id)
+            question_id = int(question_id)
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "Invalid ids provided"}, status=400)
+
+        if not _student_has_quiz_access(student_id, quiz_id):
+            return JsonResponse(
+                {"error": "You are not enrolled in the course for this quiz."},
+                status=403
+            )
+
+        question = models.QuizQuestions.objects.filter(id=question_id, quiz_id=quiz_id).first()
+        if not question:
+            return JsonResponse({"error": "Question not found for this quiz"}, status=404)
+
+        if question.question_type == "coding":
+            return JsonResponse(
+                {"error": "Use coding submission endpoint for coding questions"},
+                status=400
+            )
+
+        if selected_answer is None:
+            return JsonResponse({"error": "Answer is required"}, status=400)
+
         correct_answer = question.right_ans
         is_correct = (selected_answer == correct_answer)
 
@@ -868,6 +1048,12 @@ class AttempQuizList(generics.ListCreateAPIView):
 
 
 def fetch_quiz_attempt_status(request,quiz_id,student_id):
+    if not _student_has_quiz_access(student_id, quiz_id):
+        return JsonResponse(
+            {"error": "You are not enrolled in the course for this quiz."},
+            status=403
+        )
+
     quiz=models.Quiz.objects.filter(id=quiz_id).first()
     student=models.Student.objects.filter(id=student_id).first()
     attemptStatus=models.AttemptQuiz.objects.filter(student=student,question__quiz=quiz).count()
@@ -879,6 +1065,27 @@ def fetch_quiz_attempt_status(request,quiz_id,student_id):
 
 
 def fetch_quiz_result(request,quiz_id,student_id):
+    teacher_id = request.GET.get("teacher_id")
+    teacher_authorized = False
+    if teacher_id:
+        try:
+            teacher_id_int = int(teacher_id)
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "Invalid teacher_id"}, status=400)
+
+        if not _teacher_owns_quiz(teacher_id_int, quiz_id):
+            return JsonResponse(
+                {"error": "You are not allowed to view this quiz result."},
+                status=403
+            )
+        teacher_authorized = True
+
+    if not teacher_authorized and not _student_has_quiz_access(student_id, quiz_id):
+        return JsonResponse(
+            {"error": "You are not enrolled in the course for this quiz."},
+            status=403
+        )
+
     quiz = models.Quiz.objects.get(id=quiz_id)
     student = models.Student.objects.get(id=student_id)
 
@@ -997,7 +1204,7 @@ def unread_message_count(request, teacher_id):
     count = TeacherStudentChat.objects.filter(
         teacher_id=teacher_id,
         is_read=False,
-        msg_from="student"
+        sender="student"
     ).count()
     return JsonResponse({'count': count})
 
@@ -1116,7 +1323,67 @@ def StudentChatList(request, student_id):
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import TeacherStudentChat, Student
-from .serializers import TeacherStudentChatSerializer
+
+
+def _get_group_unread_details_for_student(student_id):
+    enrolled_course_ids = StudentCourseEnrollment.objects.filter(
+        student_id=student_id
+    ).values_list("course_id", flat=True)
+
+    details = []
+    total_unread = 0
+
+    for course_id in enrolled_course_ids:
+        group = CourseChatGroup.objects.filter(course_id=course_id).select_related("course").first()
+        if not group:
+            continue
+
+        state = GroupChatReadState.objects.filter(group=group, student_id=student_id).first()
+        unread_qs = CourseGroupMessage.objects.filter(group=group).exclude(sender_type="student")
+        if state:
+            unread_qs = unread_qs.filter(timestamp__gt=state.last_seen_at)
+
+        unread_count = unread_qs.count()
+        total_unread += unread_count
+        first_unread = unread_qs.order_by("timestamp").first()
+
+        details.append({
+            "course_id": group.course_id,
+            "course_title": group.course.title,
+            "unread_count": unread_count,
+            "first_unread_message_id": getattr(first_unread, "id", None),
+            "first_unread_at": first_unread.timestamp.strftime("%Y-%m-%d %H:%M") if first_unread else None,
+        })
+
+    return {"count": total_unread, "courses": details}
+
+
+def _get_group_unread_details_for_teacher(teacher_id):
+    groups = CourseChatGroup.objects.filter(teacher_id=teacher_id).select_related("course")
+
+    details = []
+    total_unread = 0
+
+    for group in groups:
+        state = GroupChatReadState.objects.filter(group=group, teacher_id=teacher_id).first()
+        unread_qs = CourseGroupMessage.objects.filter(group=group).exclude(sender_type="teacher")
+        if state:
+            unread_qs = unread_qs.filter(timestamp__gt=state.last_seen_at)
+
+        unread_count = unread_qs.count()
+        total_unread += unread_count
+        first_unread = unread_qs.order_by("timestamp").first()
+
+        details.append({
+            "course_id": group.course_id,
+            "course_title": group.course.title,
+            "unread_count": unread_count,
+            "first_unread_message_id": getattr(first_unread, "id", None),
+            "first_unread_at": first_unread.timestamp.strftime("%Y-%m-%d %H:%M") if first_unread else None,
+        })
+
+    return {"count": total_unread, "courses": details}
+from .serializers import TeacherStudentChatSerializer, CourseGroupMessageSerializer
 
 
 @csrf_exempt
@@ -1221,28 +1488,21 @@ from .models import TeacherStudentChat, Student
 
 @csrf_exempt
 def unread_individual_count(request, student_id):
-    """
-    Returns the count of unread individual messages for a student
-    """
     count = TeacherStudentChat.objects.filter(
         student_id=student_id,
-        is_group=False,
-        msg_from="teacher",
+        sender="teacher",
         is_read=False
     ).count()
     return JsonResponse({"count": count})
 
 @csrf_exempt
 def unread_group_count(request, student_id):
-    """
-    Returns the count of unread group messages for a student
-    """
-    count = TeacherStudentChat.objects.filter(
-        student_id=student_id,
-        is_group=True,
-        is_read=False
-    ).count()
-    return JsonResponse({"count": count})
+    return JsonResponse(_get_group_unread_details_for_student(student_id))
+
+
+@csrf_exempt
+def teacher_group_unread_count(request, teacher_id):
+    return JsonResponse(_get_group_unread_details_for_teacher(teacher_id))
 
 
 
@@ -1567,7 +1827,7 @@ def teacher_chat_dashboard(request, teacher_id):
 
         return Response({
             "individuals": individuals,
-            "groups": []  # optional
+            "groups": _get_group_unread_details_for_teacher(teacher_id)["courses"]
         })
 
     except Exception as e:
@@ -1592,7 +1852,7 @@ def student_chat_dashboard(request, student_id):
     Return all teachers for a student along with unread counts, profile images, and groups.
     """
     teachers = {}
-    groups = []
+    group_map = {}
 
     try:
         enrollments = StudentCourseEnrollment.objects.filter(
@@ -1622,10 +1882,24 @@ def student_chat_dashboard(request, student_id):
                 "type": "individual"
             }
 
-            groups.append({
+            group_map[course.id] = {
                 "id": course.id,
                 "name": getattr(course, 'title', 'Untitled'),
                 "type": "group"
+            }
+
+        group_unread = {
+            item["course_id"]: item for item in _get_group_unread_details_for_student(student_id)["courses"]
+        }
+
+        groups = []
+        for course_id, group in group_map.items():
+            unread_info = group_unread.get(course_id, {})
+            groups.append({
+                **group,
+                "unread": unread_info.get("unread_count", 0),
+                "first_unread_message_id": unread_info.get("first_unread_message_id"),
+                "first_unread_at": unread_info.get("first_unread_at"),
             })
 
         return Response({
@@ -1648,9 +1922,13 @@ def fetch_individual_chat(request, teacher_id, student_id):
     )
 
     # 🔥 mark unread teacher messages as read
-    chats.filter(sender='teacher', is_read=False).update(is_read=True)
+    viewer = str(request.GET.get("viewer", "")).strip().lower()
+    if viewer == "teacher":
+        chats.filter(sender='student', is_read=False).update(is_read=True)
+    elif viewer == "student":
+        chats.filter(sender='teacher', is_read=False).update(is_read=True)
 
-    serializer = TeacherStudentChatSerializer(chats, many=True)
+    serializer = TeacherStudentChatSerializer(chats, many=True, context={"request": request})
     return Response(serializer.data)
 
 
@@ -1663,6 +1941,8 @@ def send_individual_message(request):
         student_id=request.data['student'],
         message=request.data.get('message', ''),
         image=request.FILES.get('image', None),
+        audio=request.FILES.get('audio', None),
+        audio_transcript=request.data.get('audio_transcript', ''),
         sender=request.data['sender'],
         is_read=False
     )
@@ -1672,51 +1952,77 @@ def send_individual_message(request):
 
 @api_view(['GET'])
 def fetch_group_chat(request, course_id):
-    group = CourseChatGroup.objects.get(course_id=course_id)
-    msgs = CourseGroupMessage.objects.filter(group=group)
-
-    serializer = CourseGroupMessageSerializer(msgs, many=True)
-    return Response(serializer.data)
-
-
-
-
-
-
-
-@api_view(['GET'])
-def fetch_group_chat(request, course_id):
-    group = CourseChatGroup.objects.get(course_id=course_id)
-    msgs = CourseGroupMessage.objects.filter(group=group)
-    serializer = CourseGroupMessageSerializer(msgs, many=True)
-    return Response(serializer.data)
-
-
-
-
-@api_view(['POST'])
-def send_group_message(request):
-    group = CourseChatGroup.objects.get(course_id=request.data['course'])
-
-    CourseGroupMessage.objects.create(
-        group=group,
-        sender_type=request.data['sender_type'],
-        sender_student_id=request.data.get('student'),
-        message=request.data['message']
+    group, _ = CourseChatGroup.objects.get_or_create(
+        course_id=course_id,
+        defaults={"teacher_id": Course.objects.get(id=course_id).teacher_id},
     )
-    return Response({"status": "sent"})
+    viewer = str(request.GET.get("viewer", "")).strip().lower()
+    teacher_id = request.GET.get("teacher_id")
+    student_id = request.GET.get("student_id")
 
+    last_seen_at = None
+    unread_sender_type = None
+
+    if viewer == "teacher" and teacher_id:
+        unread_sender_type = "student"
+        state = GroupChatReadState.objects.filter(group=group, teacher_id=teacher_id).first()
+        last_seen_at = state.last_seen_at if state else None
+    elif viewer == "student" and student_id:
+        unread_sender_type = "teacher"
+        state = GroupChatReadState.objects.filter(group=group, student_id=student_id).first()
+        last_seen_at = state.last_seen_at if state else None
+
+    msgs = CourseGroupMessage.objects.filter(group=group)
+
+    serializer = CourseGroupMessageSerializer(msgs, many=True)
+    payload = serializer.data
+    first_unread_id = None
+
+    if unread_sender_type:
+        for item, msg in zip(payload, msgs):
+            is_unread = msg.sender_type == unread_sender_type and (
+                last_seen_at is None or msg.timestamp > last_seen_at
+            )
+            item["is_unread_for_viewer"] = is_unread
+            if is_unread and first_unread_id is None:
+                first_unread_id = msg.id
+
+    if viewer == "teacher" and teacher_id:
+        GroupChatReadState.objects.update_or_create(
+            group=group,
+            teacher_id=teacher_id,
+            defaults={"last_seen_at": now()},
+        )
+    elif viewer == "student" and student_id:
+        GroupChatReadState.objects.update_or_create(
+            group=group,
+            student_id=student_id,
+            defaults={"last_seen_at": now()},
+        )
+
+    response = Response(payload)
+    if first_unread_id is not None:
+        response["X-First-Unread-Message-Id"] = str(first_unread_id)
+    return response
 
 
 @api_view(['POST'])
 def send_group_message(request):
-    group = CourseChatGroup.objects.get(course_id=request.data['course'])
+    course_id = request.data['course']
+    course = Course.objects.get(id=course_id)
+    group, _ = CourseChatGroup.objects.get_or_create(
+        course_id=course_id,
+        defaults={"teacher_id": course.teacher_id},
+    )
 
     CourseGroupMessage.objects.create(
         group=group,
         sender_type=request.data['sender_type'],
         sender_student_id=request.data.get('student'),
-        message=request.data['message']
+        message=request.data.get('message', ''),
+        message_type=request.data.get('message_type', 'message'),
+        title=request.data.get('title', ''),
+        meeting_link=request.data.get('meeting_link', '')
     )
 
     return Response({"status": "sent"})
@@ -1763,12 +2069,89 @@ from rest_framework import status
 from .models import StudentCourseEnrollment, CourseQuiz, Quiz
 from .serializers import QuizSerializer
 
+def _get_student_approved_course_ids(student_id):
+    return StudentCourseEnrollment.objects.filter(
+        student_id=student_id,
+        status="approved"
+    ).values_list("course_id", flat=True)
+
+
+def _student_has_quiz_access(student_id, quiz_id):
+    if not student_id or not quiz_id:
+        return False
+
+    approved_course_ids = _get_student_approved_course_ids(student_id)
+    return CourseQuiz.objects.filter(
+        course_id__in=approved_course_ids,
+        quiz_id=quiz_id
+    ).exists()
+
+
+def _teacher_owns_quiz(teacher_id, quiz_id):
+    if not teacher_id or not quiz_id:
+        return False
+    return models.Quiz.objects.filter(id=quiz_id, teacher_id=teacher_id).exists()
+
+
+def _split_tags(raw):
+    if not raw:
+        return []
+    return [x.strip().lower() for x in str(raw).split(",") if x.strip()]
+
+
+@api_view(['GET'])
+def student_course_discovery(request, student_id):
+    student = models.Student.objects.filter(id=student_id).first()
+    if not student:
+        return Response({"error": "Student not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    enrolled_ids = list(
+        models.StudentCourseEnrollment.objects.filter(
+            student_id=student_id,
+            status="approved"
+        ).values_list("course_id", flat=True)
+    )
+
+    base_qs = models.Course.objects.exclude(id__in=enrolled_ids).select_related("teacher", "category")
+
+    interest_tags = _split_tags(student.interseted_categories)
+    enrolled_techs = []
+    if enrolled_ids:
+        for tech in models.Course.objects.filter(id__in=enrolled_ids).values_list("techs", flat=True):
+            enrolled_techs.extend(_split_tags(tech))
+
+    interest_q = Q()
+    for tag in set(interest_tags):
+        interest_q |= Q(techs__icontains=tag) | Q(category__title__icontains=tag)
+
+    bridge_q = Q()
+    for tag in set(enrolled_techs):
+        bridge_q |= Q(techs__icontains=tag)
+
+    interest_courses = base_qs.filter(interest_q).distinct().order_by("-id")[:8] if interest_tags else models.Course.objects.none()
+    bridge_courses = base_qs.filter(bridge_q).distinct().order_by("-id")[:8] if enrolled_techs else models.Course.objects.none()
+    popular_courses = (
+        base_qs
+        .annotate(approved_enroll_count=Count("enrolled_courses", filter=Q(enrolled_courses__status="approved")))
+        .order_by("-approved_enroll_count", "-id")[:8]
+    )
+    new_courses = base_qs.order_by("-id")[:8]
+
+    return Response(
+        {
+            "interest_matches": CourseSerializer(interest_courses, many=True, context={"request": request}).data,
+            "bridge_courses": CourseSerializer(bridge_courses, many=True, context={"request": request}).data,
+            "popular_courses": CourseSerializer(popular_courses, many=True, context={"request": request}).data,
+            "new_courses": CourseSerializer(new_courses, many=True, context={"request": request}).data,
+        },
+        status=status.HTTP_200_OK
+    )
+
+
 @api_view(['GET'])
 def student_assigned_quizzes(request, student_id):
     # ✅ get enrolled courses of student
-    enrolled_course_ids = StudentCourseEnrollment.objects.filter(
-        student_id=student_id
-    ).values_list('course_id', flat=True)
+    enrolled_course_ids = _get_student_approved_course_ids(student_id)
 
     # ✅ get quiz ids assigned to those courses
     quiz_ids = CourseQuiz.objects.filter(
@@ -1829,6 +2212,24 @@ from .serializers import QuizSerializer
 
 @api_view(['GET'])
 def course_quizzes(request, course_id):
+    student_id = request.query_params.get("student_id")
+    if student_id:
+        try:
+            student_id_int = int(student_id)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid student_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        enrolled = StudentCourseEnrollment.objects.filter(
+            student_id=student_id_int,
+            course_id=course_id,
+            status="approved"
+        ).exists()
+        if not enrolled:
+            return Response(
+                {"error": "You are not enrolled in this course."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
     quiz_ids = CourseQuiz.objects.filter(course_id=course_id).values_list('quiz_id', flat=True)
     quizzes = Quiz.objects.filter(id__in=quiz_ids).distinct().order_by('-add_time')
     serializer = QuizSerializer(quizzes, many=True)
@@ -2020,6 +2421,340 @@ def teacher_student_course_progress(request, teacher_id):
     return Response(data)
 
 
+def _build_mock_interview_context(student, course, progress):
+    chapter_titles = list(
+        models.Chapter.objects.filter(course=course).values_list("title", flat=True)[:8]
+    )
+    material_titles = list(
+        models.StudyMaterial.objects.filter(course=course).values_list("title", flat=True)[:6]
+    )
+    quiz_titles = list(
+        models.CourseQuiz.objects.filter(course=course)
+        .select_related("quiz")
+        .values_list("quiz__title", flat=True)[:4]
+    )
+    assignment_titles = list(
+        models.StudentAssignment.objects.filter(student=student, course=course)
+        .values_list("title", flat=True)[:6]
+    )
+    return [
+        f"Student: {student.fullname}.",
+        f"Course: {course.title}.",
+        f"Course description: {course.description}.",
+        f"Course technologies: {course.techs or 'N/A'}.",
+        f"Progress overall: {progress.get('overall', 0)}%.",
+        f"Video completion: {progress['videos']['done']}/{progress['videos']['total']}.",
+        f"Assignments completion: {progress['assignments']['done']}/{progress['assignments']['total']}.",
+        f"Quiz score: {progress['quiz']['score']}%.",
+        f"Course chapters: {', '.join([x for x in chapter_titles if x]) or 'N/A'}.",
+        f"Study materials: {', '.join([x for x in material_titles if x]) or 'N/A'}.",
+        f"Assigned quizzes: {', '.join([x for x in quiz_titles if x]) or 'N/A'}.",
+        f"Student assignments: {', '.join([x for x in assignment_titles if x]) or 'N/A'}.",
+    ]
+
+
+def _fallback_interview_questions(course, interview_type):
+    title = course.title
+    techs = course.techs or title
+    question_bank = [
+        {
+            "round_type": "intro",
+            "question_text": f"Introduce yourself and explain why you enrolled in {title}.",
+            "ideal_points": "Name, background, current learning, relevant project, career goal.",
+            "coding_prompt": "",
+        },
+        {
+            "round_type": "technical",
+            "question_text": f"Explain the most important concepts you learned in {title} and how you would apply them in a real project.",
+            "ideal_points": f"Cover key concepts from {techs}, practical use case, and tradeoffs.",
+            "coding_prompt": "",
+        },
+        {
+            "round_type": "technical",
+            "question_text": f"What project would you build using {techs}, and how would you structure it?",
+            "ideal_points": "Architecture, modules, data flow, deployment, testing.",
+            "coding_prompt": "",
+        },
+        {
+            "round_type": "coding",
+            "question_text": f"Solve a coding task related to {techs} and explain your logic step by step.",
+            "ideal_points": "Clear approach, edge cases, complexity, clean explanation.",
+            "coding_prompt": f"Write a short coding solution or pseudocode using {techs}.",
+        },
+        {
+            "round_type": "hr",
+            "question_text": "What are your strengths, what are you improving, and how do you handle mistakes during development?",
+            "ideal_points": "Honest self-assessment, structured answer, growth mindset, ownership.",
+            "coding_prompt": "",
+        },
+    ]
+    if interview_type == models.MockInterview.INTRO:
+        return question_bank[:2]
+    if interview_type == models.MockInterview.TECHNICAL:
+        return question_bank[1:4]
+    if interview_type == models.MockInterview.CODING:
+        return [question_bank[3]]
+    if interview_type == models.MockInterview.HR:
+        return [question_bank[0], question_bank[4]]
+    return question_bank
+
+
+def _get_interview_eligibility(student, course):
+    enrollment = models.StudentCourseEnrollment.objects.filter(
+        student=student, course=course, status="approved"
+    ).first()
+    progress = calculate_course_progress(student, course)
+    unlocked = (
+        enrollment is not None
+        and progress["overall"] >= 50
+        and (
+            progress["quiz"]["score"] > 0
+            or progress["assignments"]["done"] > 0
+            or progress["videos"]["done"] > 0
+        )
+    )
+    recommended = progress["eligible"] or progress["overall"] >= 70
+    gaps = []
+    if not enrollment:
+        gaps.append("Course enrollment is not approved yet.")
+    if progress["videos"]["total"] and not progress["videos"]["ok"]:
+        gaps.append("Complete more chapter videos before final interview.")
+    if progress["assignments"]["total"] and not progress["assignments"]["ok"]:
+        gaps.append("Submit remaining assignments.")
+    if not progress["quiz"]["ok"]:
+        gaps.append("Improve quiz performance for stronger interview readiness.")
+    return {
+        "allowed": unlocked,
+        "recommended": recommended,
+        "progress": progress,
+        "gaps": gaps,
+    }
+
+
+@api_view(["GET"])
+def mock_interview_eligibility(request, student_id, course_id):
+    student = models.Student.objects.filter(id=student_id).first()
+    course = models.Course.objects.filter(id=course_id).first()
+    if not student or not course:
+        return Response({"error": "Student or course not found"}, status=404)
+
+    result = _get_interview_eligibility(student, course)
+    return Response(
+        {
+            "student_id": student.id,
+            "course_id": course.id,
+            "course_title": course.title,
+            **result,
+        }
+    )
+
+
+@api_view(["POST"])
+def start_mock_interview(request):
+    student_id = request.data.get("student_id")
+    course_id = request.data.get("course_id")
+    interview_type = str(request.data.get("interview_type", models.MockInterview.FULL)).strip().lower()
+
+    student = models.Student.objects.filter(id=student_id).first()
+    course = models.Course.objects.filter(id=course_id).first()
+    if not student or not course:
+        return Response({"error": "Student or course not found"}, status=404)
+
+    allowed_types = {
+        models.MockInterview.INTRO,
+        models.MockInterview.TECHNICAL,
+        models.MockInterview.CODING,
+        models.MockInterview.HR,
+        models.MockInterview.FULL,
+    }
+    if interview_type not in allowed_types:
+        interview_type = models.MockInterview.FULL
+
+    eligibility = _get_interview_eligibility(student, course)
+    if not eligibility["allowed"]:
+        return Response(
+            {
+                "error": "Interview is locked for this student and course.",
+                **eligibility,
+            },
+            status=403,
+        )
+
+    progress = eligibility["progress"]
+    context_chunks = _build_mock_interview_context(student, course, progress)
+    prompt = (
+        f"Generate a {interview_type} mock interview for a student who studied {course.title}. "
+        "Start with self introduction if relevant. Ask practical course-specific questions. "
+        "Include coding only when the course clearly supports it. "
+        "Keep questions job-oriented and based on the student's course journey."
+    )
+    generated = generate_mock_interview_questions(prompt, context_chunks)
+    questions = generated.get("questions") if isinstance(generated, dict) else None
+    if not questions:
+        questions = _fallback_interview_questions(course, interview_type)
+
+    interview = models.MockInterview.objects.create(
+        student=student,
+        course=course,
+        interview_type=interview_type,
+        status=models.MockInterview.IN_PROGRESS,
+        total_questions=len(questions),
+    )
+
+    question_rows = []
+    for index, item in enumerate(questions, start=1):
+        round_type = str(item.get("round_type", "technical")).strip().lower()
+        if round_type not in {"intro", "technical", "coding", "hr"}:
+            round_type = "technical"
+        question_rows.append(
+            models.MockInterviewQuestion(
+                interview=interview,
+                round_type=round_type,
+                question_text=item.get("question_text", ""),
+                ideal_points=item.get("ideal_points", ""),
+                coding_prompt=item.get("coding_prompt", ""),
+                order=index,
+            )
+        )
+    models.MockInterviewQuestion.objects.bulk_create(question_rows)
+    interview.refresh_from_db()
+
+    return Response(
+        {
+            "eligibility": eligibility,
+            "interview": MockInterviewSerializer(interview, context={"request": request}).data,
+        },
+        status=201,
+    )
+
+
+@api_view(["POST"])
+def submit_mock_interview_answer(request):
+    interview_id = request.data.get("interview_id")
+    question_id = request.data.get("question_id")
+    answer_text = str(request.data.get("answer_text", "")).strip()
+
+    if not interview_id or not question_id or not answer_text:
+        return Response({"error": "interview_id, question_id and answer_text are required"}, status=400)
+
+    interview = models.MockInterview.objects.filter(id=interview_id).select_related("student", "course").first()
+    question = models.MockInterviewQuestion.objects.filter(id=question_id, interview_id=interview_id).first()
+    if not interview or not question:
+        return Response({"error": "Interview or question not found"}, status=404)
+
+    progress = calculate_course_progress(interview.student, interview.course)
+    context_chunks = _build_mock_interview_context(interview.student, interview.course, progress)
+    evaluation_prompt = f"""
+Interview type: {interview.interview_type}
+Question round: {question.round_type}
+Question: {question.question_text}
+Ideal points: {question.ideal_points or 'N/A'}
+Coding prompt: {question.coding_prompt or 'N/A'}
+Student answer: {answer_text}
+
+Evaluate this answer. If weak, explain exactly how the student should improve the answer structure, examples, confidence, and technical depth.
+"""
+    evaluation = evaluate_mock_interview_answer(evaluation_prompt, context_chunks)
+    if "error" in evaluation:
+        evaluation = {
+            "score": 55,
+            "communication_score": 55,
+            "technical_score": 55,
+            "confidence_score": 55,
+            "feedback": "Your answer covers some points but needs more structure and clearer practical examples.",
+            "improvement_tip": "Use a simple structure: concept, example, project usage, and result.",
+            "suggested_followup": f"Practice another {question.round_type} question from {interview.course.title}.",
+        }
+
+    answer, _ = models.MockInterviewAnswer.objects.update_or_create(
+        interview=interview,
+        question=question,
+        defaults={
+            "answer_text": answer_text,
+            "score": evaluation["score"],
+            "communication_score": evaluation["communication_score"],
+            "technical_score": evaluation["technical_score"],
+            "confidence_score": evaluation["confidence_score"],
+            "feedback": evaluation["feedback"],
+            "improvement_tip": evaluation["improvement_tip"],
+            "suggested_followup": evaluation["suggested_followup"],
+        },
+    )
+
+    if not question.is_answered:
+        question.is_answered = True
+        question.save(update_fields=["is_answered"])
+
+    interview.asked_questions = interview.answers.count()
+    interview.save(update_fields=["asked_questions", "updated_at"])
+
+    return Response(
+        {
+            "answer": MockInterviewAnswerSerializer(answer, context={"request": request}).data,
+            "remaining_questions": max(interview.total_questions - interview.asked_questions, 0),
+        }
+    )
+
+
+@api_view(["POST"])
+def complete_mock_interview(request):
+    interview_id = request.data.get("interview_id")
+    interview = models.MockInterview.objects.filter(id=interview_id).first()
+    if not interview:
+        return Response({"error": "Interview not found"}, status=404)
+
+    answers = interview.answers.select_related("question").all()
+    if not answers.exists():
+        return Response({"error": "No interview answers found"}, status=400)
+
+    intro_scores = [a.score for a in answers if a.question.round_type == "intro"]
+    technical_scores = [a.score for a in answers if a.question.round_type == "technical"]
+    coding_scores = [a.score for a in answers if a.question.round_type == "coding"]
+    communication_scores = [a.communication_score for a in answers]
+
+    def _avg(values):
+        return round(sum(values) / len(values)) if values else 0
+
+    improvement_lines = [a.improvement_tip for a in answers if a.improvement_tip]
+    feedback_lines = [a.feedback for a in answers if a.feedback]
+    followup_lines = [a.suggested_followup for a in answers if a.suggested_followup]
+
+    interview.score_intro = _avg(intro_scores)
+    interview.score_technical = _avg(technical_scores)
+    interview.score_coding = _avg(coding_scores)
+    interview.score_communication = _avg(communication_scores)
+    interview.overall_score = _avg([a.score for a in answers])
+    interview.status = models.MockInterview.COMPLETED
+    interview.completed_at = now()
+    interview.strengths = " ".join(feedback_lines[:2]) or "The student showed usable understanding in parts of the interview."
+    interview.weaknesses = " ".join(improvement_lines[:2]) or "The student needs more depth and structured responses."
+    interview.improvement_plan = " ".join(improvement_lines[:4])
+    interview.recommended_topics = " ".join(followup_lines[:4])
+    interview.ai_summary = (
+        f"Interview completed for {interview.course.title}. "
+        f"Overall score {interview.overall_score}. "
+        f"Communication {interview.score_communication}, technical {interview.score_technical}, coding {interview.score_coding}."
+    )
+    interview.asked_questions = answers.count()
+    interview.save()
+
+    return Response(MockInterviewSerializer(interview, context={"request": request}).data)
+
+
+@api_view(["GET"])
+def mock_interview_report(request, interview_id):
+    interview = models.MockInterview.objects.filter(id=interview_id).first()
+    if not interview:
+        return Response({"error": "Interview not found"}, status=404)
+    return Response(MockInterviewSerializer(interview, context={"request": request}).data)
+
+
+@api_view(["GET"])
+def student_mock_interviews(request, student_id):
+    interviews = models.MockInterview.objects.filter(student_id=student_id).select_related("course", "student")
+    serializer = MockInterviewSerializer(interviews, many=True, context={"request": request})
+    return Response(serializer.data)
+
 
 
 
@@ -2027,7 +2762,7 @@ def teacher_student_course_progress(request, teacher_id):
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import StudentCourseEnrollment, Course
-from .ai_service import get_ai_response
+from .ai_service import get_ai_response, generate_tts_audio, translate_text
 
 
 class AIChatView(APIView):
@@ -2063,3 +2798,660 @@ class AIChatView(APIView):
         answer = get_ai_response(question, documents)
 
         return Response({"answer": answer})
+
+
+class AIChatAccessMixin:
+
+    def _extract_bearer_token(self, request):
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            return None
+        token = auth.split(" ", 1)[1].strip()
+        return token or None
+
+    def _is_valid_role_user(self, role, user_id):
+        if role == "teacher":
+            return models.Teacher.objects.filter(id=user_id, is_approved=True).exists()
+        return models.Student.objects.filter(id=user_id, is_approved=True).exists()
+
+
+class ProAIChatView(AIChatAccessMixin, APIView):
+
+    def post(self, request):
+        question = str(request.data.get("question", "")).strip()
+        role = str(request.data.get("role", "")).strip().lower()
+        user_id = request.data.get("user_id")
+        history = request.data.get("history", [])
+        current_path = str(request.data.get("current_path", "")).strip()
+        current_page = str(request.data.get("current_page", "")).strip()
+        capability_prompts = request.data.get("capability_prompts", [])
+        role_scope = str(request.data.get("role_scope", "")).strip()
+        preferred_language = str(request.data.get("preferred_language", "english")).strip()
+
+        if not question or not role or not user_id:
+            return Response({"error": "Missing fields"}, status=400)
+
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid user id"}, status=400)
+
+        token = self._extract_bearer_token(request)
+        if not token:
+            return Response({"error": "Missing auth token"}, status=401)
+
+        token_data = parse_chat_token(token)
+        if not token_data:
+            return Response({"error": "Invalid or expired auth token"}, status=401)
+
+        if token_data["role"] != role or token_data["user_id"] != user_id:
+            return Response({"error": "Auth mismatch"}, status=403)
+
+        if not self._is_valid_role_user(role, user_id):
+            return Response({"error": "Unauthorized user"}, status=403)
+
+        if role == "student":
+            context_chunks = self._build_student_context(user_id)
+        elif role == "teacher":
+            context_chunks = self._build_teacher_context(user_id)
+        else:
+            return Response({"error": "Invalid role"}, status=403)
+
+        answer = get_ai_response(
+            question=question,
+            context_chunks=context_chunks,
+            role=role,
+            history=history,
+            user_id=user_id,
+            current_path=current_path,
+            current_page=current_page,
+            capability_prompts=capability_prompts,
+            role_scope=role_scope,
+            preferred_language=preferred_language,
+        )
+        return Response({"answer": answer})
+
+
+    def _build_student_context(self, student_id):
+        student = models.Student.objects.filter(id=student_id).first()
+        enrollments = models.StudentCourseEnrollment.objects.filter(
+            student_id=student_id
+        ).select_related("course", "course__teacher")
+
+        chunks = [
+            "Student assistant skill areas: dashboard summary, enrolled courses, study materials, chapters, assignments, quizzes, progress, certificates, favorites, and chat dashboard.",
+            "Student page help: explain the current page, summarize counts, clarify course status, suggest next learning steps, and answer only from this student's records.",
+        ]
+
+        if not enrollments.exists():
+            chunks.append("Student has no enrolled courses yet.")
+            return chunks
+
+        course_ids = [e.course_id for e in enrollments if e.course_id]
+        approved_count = sum(1 for e in enrollments if e.status == "approved")
+        pending_count = sum(1 for e in enrollments if e.status == "pending")
+        rejected_count = sum(1 for e in enrollments if e.status == "rejected")
+
+        total_submitted = models.StudentAssignment.objects.filter(
+            student_id=student_id, student_status=True
+        ).count()
+        total_pending = models.StudentAssignment.objects.filter(
+            student_id=student_id, student_status=False
+        ).count()
+
+        total_attempts = models.AttemptQuiz.objects.filter(student_id=student_id).count()
+        total_correct = models.AttemptQuiz.objects.filter(
+            student_id=student_id, is_correct=True
+        ).count()
+        assigned_quiz_ids = list(
+            models.CourseQuiz.objects.filter(course_id__in=course_ids)
+            .values_list("quiz_id", flat=True)
+            .distinct()
+        )
+        assigned_quiz_count = len([q for q in assigned_quiz_ids if q])
+
+        chunks.append(
+            f"Student profile: id={student_id}, name={getattr(student, 'fullname', 'N/A')}."
+        )
+        chunks.append(
+            f"Student summary: enrolled_courses={len(course_ids)}, approved={approved_count}, "
+            f"pending={pending_count}, rejected={rejected_count}, assigned_quizzes={assigned_quiz_count}, "
+            f"assignments_submitted={total_submitted}, assignments_pending={total_pending}, "
+            f"quiz_attempts={total_attempts}, quiz_correct={total_correct}."
+        )
+        chunks.append(
+            "Student permissions: answer only from this student's own approved or pending learning data. "
+            "Do not expose any other student's private records."
+        )
+
+        approved_course_titles = [
+            e.course.title
+            for e in enrollments
+            if e.course_id and e.course and e.status == "approved"
+        ]
+        if approved_course_titles:
+            chunks.append(
+                "Approved courses for personalized guidance: "
+                + ", ".join(approved_course_titles[:20])
+                + "."
+            )
+        else:
+            chunks.append(
+                "Student has no approved courses yet. Give only general study advice until enrollment approval."
+            )
+
+        for e in enrollments[:20]:
+            c = e.course
+            if not c:
+                continue
+            try:
+                progress = calculate_course_progress(e.student, c)
+                progress_percent = progress.get("overall", 0)
+                eligible = progress.get("eligible", False)
+            except Exception:
+                progress_percent = 0
+                eligible = False
+
+            course_quiz_count = models.CourseQuiz.objects.filter(course_id=c.id).count()
+            course_material_qs = models.StudyMaterial.objects.filter(course_id=c.id)
+            course_material_count = course_material_qs.count()
+            chapter_qs = models.Chapter.objects.filter(course_id=c.id)
+            chapter_count = chapter_qs.count()
+            sample_materials = list(
+                course_material_qs.values_list("title", flat=True)[:5]
+            )
+            sample_chapters = list(chapter_qs.values_list("title", flat=True)[:6])
+            material_details = list(
+                course_material_qs.values_list("title", "description", "remarks")[:4]
+            )
+            chapter_details = list(
+                chapter_qs.values_list("title", "description", "remarks")[:4]
+            )
+            assigned_quizzes = list(
+                models.CourseQuiz.objects.filter(course_id=c.id)
+                .select_related("quiz")
+                .values_list("quiz__title", "quiz__detail")[:4]
+            )
+            course_assignments = list(
+                models.StudentAssignment.objects.filter(student_id=student_id, course_id=c.id)
+                .values_list("title", "detail", "student_status")[:4]
+            )
+
+            chunks.append(
+                f"Course: {c.title}. Teacher: {getattr(c.teacher, 'full_name', 'N/A')}. "
+                f"Enrollment_status={e.status}. Progress={progress_percent}%. "
+                f"Eligible_for_certificate={eligible}. Quizzes={course_quiz_count}. "
+                f"Study_materials={course_material_count}. Chapters={chapter_count}. "
+                f"Topics: {c.techs or 'N/A'}. "
+                f"Description: {c.description}."
+            )
+            if sample_chapters:
+                chunks.append(
+                    f"Course outline for {c.title}: {', '.join([x for x in sample_chapters if x][:6])}."
+                )
+            if sample_materials:
+                chunks.append(
+                    f"Study documents for {c.title}: {', '.join([x for x in sample_materials if x][:5])}."
+                )
+            for title, description, remarks in material_details:
+                parts = [f"Study material in {c.title}: {title}."]
+                if description:
+                    parts.append(f"Description: {description}")
+                if remarks:
+                    parts.append(f"Remarks: {remarks}")
+                chunks.append(" ".join(parts))
+            for title, description, remarks in chapter_details:
+                parts = [f"Chapter in {c.title}: {title}."]
+                if description:
+                    parts.append(f"Description: {description}")
+                if remarks:
+                    parts.append(f"Remarks: {remarks}")
+                chunks.append(" ".join(parts))
+            for quiz_title, quiz_detail in assigned_quizzes:
+                if not quiz_title:
+                    continue
+                chunks.append(
+                    f"Assigned quiz for {c.title}: {quiz_title}. Detail: {quiz_detail or 'No detail provided.'}"
+                )
+            for title, detail, student_status in course_assignments:
+                chunks.append(
+                    f"Assignment for {c.title}: {title}. Detail: {detail or 'No detail provided.'} "
+                    f"Submission_status={'submitted' if student_status else 'pending'}."
+                )
+
+        return chunks
+
+    def _build_teacher_context(self, teacher_id):
+        teacher = models.Teacher.objects.filter(id=teacher_id).first()
+        courses = models.Course.objects.filter(teacher_id=teacher_id)
+        chunks = [
+            "Teacher assistant skill areas: dashboard summary, courses, enrolled students, chapters, study materials, quizzes, assignments, and chat dashboard.",
+            "Teacher page help: explain the current page, summarize totals, describe course assets, report scoped student progress, and answer only from this teacher's records.",
+        ]
+        if not courses.exists():
+            chunks.append("Teacher has not created courses yet.")
+            return chunks
+
+        course_ids = list(courses.values_list("id", flat=True))
+
+        enrolled_count = models.StudentCourseEnrollment.objects.filter(
+            course_id__in=course_ids
+        ).count()
+        approved_enrolled_count = models.StudentCourseEnrollment.objects.filter(
+            course_id__in=course_ids, status="approved"
+        ).count()
+        pending_enrolled_count = models.StudentCourseEnrollment.objects.filter(
+            course_id__in=course_ids, status="pending"
+        ).count()
+        quiz_count = models.CourseQuiz.objects.filter(course_id__in=course_ids).count()
+        teacher_created_quiz_count = models.Quiz.objects.filter(teacher_id=teacher_id).count()
+        material_count = models.StudyMaterial.objects.filter(
+            course_id__in=course_ids
+        ).count()
+        chapter_count = models.Chapter.objects.filter(course_id__in=course_ids).count()
+        assignment_count = models.StudentAssignment.objects.filter(
+            teacher_id=teacher_id
+        ).count()
+        assignment_submitted = models.StudentAssignment.objects.filter(
+            teacher_id=teacher_id, student_status=True
+        ).count()
+        unique_students = models.StudentCourseEnrollment.objects.filter(
+            course_id__in=course_ids
+        ).values("student_id").distinct().count()
+
+        chunks.append(
+            f"Teacher profile: id={teacher_id}, name={getattr(teacher, 'full_name', 'N/A')}."
+        )
+        chunks.append(
+            f"Teacher summary: total_courses={len(course_ids)}, unique_students={unique_students}, "
+            f"total_enrollments={enrolled_count}, approved_enrollments={approved_enrolled_count}, "
+            f"pending_enrollments={pending_enrolled_count}, assigned_quizzes={quiz_count}, "
+            f"teacher_created_quizzes={teacher_created_quiz_count}, chapters={chapter_count}, "
+            f"study_materials={material_count}, assignments={assignment_count}, "
+            f"assignments_submitted={assignment_submitted}."
+        )
+        chunks.append(
+            "Teacher permissions: answer only from this teacher's own classes, materials, quizzes, assignments, "
+            "enrollments, and aggregated student progress. Do not expose unrelated private records."
+        )
+
+        for c in courses[:20]:
+            c_enroll_total = models.StudentCourseEnrollment.objects.filter(course_id=c.id).count()
+            c_enroll_approved = models.StudentCourseEnrollment.objects.filter(
+                course_id=c.id, status="approved"
+            ).count()
+            c_quiz_count = models.CourseQuiz.objects.filter(course_id=c.id).count()
+            c_material_count = models.StudyMaterial.objects.filter(course_id=c.id).count()
+            c_chapter_count = models.Chapter.objects.filter(course_id=c.id).count()
+            c_assignment_count = models.StudentAssignment.objects.filter(
+                teacher_id=teacher_id, course_id=c.id
+            ).count()
+            material_details = list(
+                models.StudyMaterial.objects.filter(course_id=c.id)
+                .values_list("title", "description", "remarks")[:4]
+            )
+            chapter_details = list(
+                models.Chapter.objects.filter(course_id=c.id)
+                .values_list("title", "description", "remarks")[:4]
+            )
+            quiz_details = list(
+                models.CourseQuiz.objects.filter(course_id=c.id)
+                .select_related("quiz")
+                .values_list("quiz__title", "quiz__detail")[:4]
+            )
+            assignment_details = list(
+                models.StudentAssignment.objects.filter(teacher_id=teacher_id, course_id=c.id)
+                .values_list("title", "detail", "student_status")[:4]
+            )
+            chunks.append(
+                f"Course: {c.title}. Enrollments={c_enroll_total} (approved={c_enroll_approved}). "
+                f"Chapters={c_chapter_count}. Quizzes={c_quiz_count}. Study_materials={c_material_count}. "
+                f"Assignments={c_assignment_count}. Topics: {c.techs or 'N/A'}. "
+                f"Description: {c.description}."
+            )
+            for title, description, remarks in material_details:
+                parts = [f"Study material in {c.title}: {title}."]
+                if description:
+                    parts.append(f"Description: {description}")
+                if remarks:
+                    parts.append(f"Remarks: {remarks}")
+                chunks.append(" ".join(parts))
+            for title, description, remarks in chapter_details:
+                parts = [f"Chapter in {c.title}: {title}."]
+                if description:
+                    parts.append(f"Description: {description}")
+                if remarks:
+                    parts.append(f"Remarks: {remarks}")
+                chunks.append(" ".join(parts))
+            for quiz_title, quiz_detail in quiz_details:
+                if not quiz_title:
+                    continue
+                chunks.append(
+                    f"Quiz in {c.title}: {quiz_title}. Detail: {quiz_detail or 'No detail provided.'}"
+                )
+            for title, detail, student_status in assignment_details:
+                chunks.append(
+                    f"Assignment in {c.title}: {title}. Detail: {detail or 'No detail provided.'} "
+                    f"Submitted={'yes' if student_status else 'no'}."
+                )
+
+        return chunks
+
+
+class AIVoiceView(AIChatAccessMixin, APIView):
+
+    def post(self, request):
+        text = str(request.data.get("text", "")).strip()
+        role = str(request.data.get("role", "")).strip().lower()
+        user_id = request.data.get("user_id")
+        voice = str(request.data.get("voice", "alloy")).strip().lower()
+        preferred_language = str(request.data.get("preferred_language", "english")).strip()
+
+        if not text or not role or not user_id:
+            return Response({"error": "Missing fields"}, status=400)
+
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid user id"}, status=400)
+
+        token = self._extract_bearer_token(request)
+        if not token:
+            return Response({"error": "Missing auth token"}, status=401)
+
+        token_data = parse_chat_token(token)
+        if not token_data:
+            return Response({"error": "Invalid or expired auth token"}, status=401)
+
+        if token_data["role"] != role or token_data["user_id"] != user_id:
+            return Response({"error": "Auth mismatch"}, status=403)
+
+        if not self._is_valid_role_user(role, user_id):
+            return Response({"error": "Unauthorized user"}, status=403)
+
+        translation_result = translate_text(text=text, target_language=preferred_language)
+        if "error" in translation_result:
+            return Response(translation_result, status=503)
+
+        audio_result = generate_tts_audio(text=translation_result.get("text", text), voice=voice)
+        if "error" in audio_result:
+            return Response(audio_result, status=503)
+
+        response = HttpResponse(
+            audio_result["audio"],
+            content_type=audio_result.get("content_type", "audio/mpeg"),
+        )
+        response["Content-Disposition"] = 'inline; filename="assistant-voice.mp3"'
+        response["X-Assistant-Voice"] = audio_result.get("voice", voice)
+        return response
+
+
+class AITranslateView(AIChatAccessMixin, APIView):
+
+    def post(self, request):
+        text = str(request.data.get("text", "")).strip()
+        role = str(request.data.get("role", "")).strip().lower()
+        user_id = request.data.get("user_id")
+        target_language = str(request.data.get("target_language", "english")).strip()
+
+        if not text or not role or not user_id:
+            return Response({"error": "Missing fields"}, status=400)
+
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid user id"}, status=400)
+
+        token = self._extract_bearer_token(request)
+        if not token:
+            return Response({"error": "Missing auth token"}, status=401)
+
+        token_data = parse_chat_token(token)
+        if not token_data:
+            return Response({"error": "Invalid or expired auth token"}, status=401)
+
+        if token_data["role"] != role or token_data["user_id"] != user_id:
+            return Response({"error": "Auth mismatch"}, status=403)
+
+        if not self._is_valid_role_user(role, user_id):
+            return Response({"error": "Unauthorized user"}, status=403)
+
+        result = translate_text(text=text, target_language=target_language)
+        if "error" in result:
+            return Response(result, status=503)
+
+        return Response({"text": result.get("text", text)})
+
+from .ai_service import generate_structured_quiz, generate_mock_interview_questions, evaluate_mock_interview_answer
+import json
+import re
+
+@api_view(["POST"])
+def generate_single_quiz_question(request):
+    quiz_id = request.data.get("quiz_id")
+    teacher_prompt = request.data.get("prompt", "")
+    question_type = request.data.get("question_type", "mcq")
+
+    quiz = models.Quiz.objects.filter(id=quiz_id).first()
+    if not quiz:
+        return Response({"error": "Quiz not found"}, status=404)
+
+    # 🔹 Get existing questions
+    existing_questions = list(
+        models.QuizQuestions.objects
+        .filter(quiz_id=quiz_id)
+        .values_list("questions", flat=True)
+    )
+
+    existing_text = "\n".join(existing_questions) if existing_questions else "No existing questions yet."
+
+    # 🔹 Build Prompt
+    if question_type == "coding":
+
+        final_instruction = f"""
+Generate 1 CODING question STRICTLY based on the quiz topic.
+
+Quiz Title: {quiz.title}
+Quiz Detail: {quiz.detail}
+
+Teacher Instruction: {teacher_prompt}
+
+Already existing questions:
+{existing_text}
+
+IMPORTANT:
+- Must be programming problem.
+- Include problem description.
+- Include sample input and output.
+- Include constraints.
+- Include starter code.
+- Include correct solution.
+- Do NOT repeat existing questions.
+- You MUST return:
+  questions
+  coding_starter_code
+  coding_solution
+
+Return ONLY JSON:
+{{
+  "questions": "...problem statement...",
+  "coding_starter_code": "...starter code...",
+  "coding_solution": "...solution code..."
+}}
+"""
+
+    else:
+
+        final_instruction = f"""
+Generate 1 multiple choice question STRICTLY based on the quiz topic.
+
+Quiz Title: {quiz.title}
+Quiz Detail: {quiz.detail}
+
+Teacher Instruction: {teacher_prompt}
+
+Already existing questions:
+{existing_text}
+
+IMPORTANT:
+- Do NOT repeat or rephrase existing questions.
+- Do NOT generate general knowledge questions.
+- 4 options.
+- One correct answer.
+- right_ans must match exactly one option text.
+
+Return ONLY JSON:
+{{
+  "questions": "...",
+  "ans1": "...",
+  "ans2": "...",
+  "ans3": "...",
+  "ans4": "...",
+  "right_ans": "..."
+}}
+"""
+
+    context_chunks = [
+        f"Quiz Title: {quiz.title}",
+        f"Quiz Detail: {quiz.detail}",
+    ]
+
+    try:
+        ai_text = generate_structured_quiz(final_instruction, context_chunks)
+
+        if isinstance(ai_text, dict) and "error" in ai_text:
+            return Response(ai_text, status=500)
+
+        json_match = re.search(r"\{.*\}", ai_text, re.DOTALL)
+        if not json_match:
+            return Response({"error": "Invalid AI format", "raw": ai_text}, status=500)
+
+        parsed = json.loads(json_match.group())
+
+        # 🔥 Normalize Coding Question
+        if question_type == "coding":
+
+            question_text = parsed.get("questions") or parsed.get("question") or ""
+
+            starter_code = (
+                parsed.get("coding_starter_code")
+                or parsed.get("starter_code")
+                or parsed.get("starterCode")
+                or ""
+            )
+
+            solution_code = (
+                parsed.get("coding_solution")
+                or parsed.get("solution")
+                or parsed.get("solution_code")
+                or ""
+            )
+
+            parsed = {
+                "questions": question_text.strip(),
+                "coding_starter_code": starter_code.strip(),
+                "coding_solution": solution_code.strip(),
+            }
+
+        # 🔥 Normalize MCQ
+        else:
+            parsed = {
+                "questions": parsed.get("questions", "").strip(),
+                "ans1": parsed.get("ans1", "").strip(),
+                "ans2": parsed.get("ans2", "").strip(),
+                "ans3": parsed.get("ans3", "").strip(),
+                "ans4": parsed.get("ans4", "").strip(),
+                "right_ans": parsed.get("right_ans", "").strip(),
+            }
+
+        # 🔥 Duplicate Protection
+        generated_question = parsed["questions"].strip().lower()
+        if generated_question in [q.lower() for q in existing_questions]:
+            return Response({"error": "Duplicate question generated."}, status=400)
+
+        return Response(parsed)
+
+    except Exception as e:
+        return Response({
+            "error": "AI generation failed",
+            "detail": str(e)
+        }, status=500)
+    
+
+
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from . import models
+
+@api_view(["POST"])
+def submit_coding(request):
+    student_id = request.data.get("student")
+    quiz_id = request.data.get("quiz")
+    question_id = request.data.get("question")
+    student_code = request.data.get("code", "")
+
+    if not student_id or not quiz_id or not question_id:
+        return Response({"error": "student, quiz and question are required"}, status=400)
+
+    try:
+        student_id = int(student_id)
+        quiz_id = int(quiz_id)
+        question_id = int(question_id)
+    except (TypeError, ValueError):
+        return Response({"error": "Invalid ids provided"}, status=400)
+
+    if not _student_has_quiz_access(student_id, quiz_id):
+        return Response({"error": "You are not enrolled in the course for this quiz."}, status=403)
+
+    question = models.QuizQuestions.objects.filter(id=question_id, quiz_id=quiz_id).first()
+
+    if not question:
+        return Response({"error": "Question not found"}, status=404)
+
+    if question.question_type != "coding":
+        return Response({"error": "This is not a coding question"}, status=400)
+
+    correct_solution = question.coding_solution or ""
+
+    def normalize_code(code):
+        if not code:
+            return ""
+        text = code.replace("\r\n", "\n").replace("\r", "\n")
+        lines = [line.rstrip() for line in text.split("\n")]
+        # Ignore fully empty lines to avoid false negatives from formatting only.
+        lines = [line for line in lines if line.strip() != ""]
+        return "\n".join(lines).strip()
+
+    normalized_student = normalize_code(student_code)
+    normalized_solution = normalize_code(correct_solution)
+
+    is_correct = normalized_student == normalized_solution
+
+    # Fallback for Python code: AST structural equality (ignores formatting differences).
+    if not is_correct:
+        try:
+            import ast
+            student_ast = ast.dump(ast.parse(normalized_student), include_attributes=False)
+            solution_ast = ast.dump(ast.parse(normalized_solution), include_attributes=False)
+            is_correct = student_ast == solution_ast
+        except Exception:
+            pass
+
+    models.AttemptQuiz.objects.update_or_create(
+        student_id=student_id,
+        quiz_id=quiz_id,
+        question_id=question_id,
+        defaults={
+            "selected_answer": student_code,
+            "is_correct": is_correct,
+        }
+    )
+
+    return Response({
+        "correct": is_correct,
+        "solution": correct_solution
+    })
+
+

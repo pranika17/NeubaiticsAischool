@@ -116,6 +116,26 @@
   transition: all 0.25s ease;
 }
 
+.sidebar-link span:last-of-type {
+  flex: 1;
+}
+
+.sidebar-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #ff3b5f;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 59, 95, 0.35);
+}
+
 .sidebar-link i {
   font-size: 18px;
   color: inherit;
@@ -161,15 +181,6 @@
   color: #ffffff;
 }
 
-/* ================================
-   MAIN CONTENT SHIFT (OPTIONAL)
-================================ */
-.student-main-content {
-  margin-left: 250px;
-  padding: 20px;
-  min-height: calc(100vh - 70px);
-}
-
 .tsidebar-link.quiz {
   background: linear-gradient(135deg, #6f42c1, #9b59b6);
   color: #fff;
@@ -178,12 +189,4 @@
 
 .tsidebar-link.quiz:hover {
   background: linear-gradient(135deg, #5a32a3, #8e44ad);
-}
-.sidebar {
-  width: 260px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  z-index: 100;
 }

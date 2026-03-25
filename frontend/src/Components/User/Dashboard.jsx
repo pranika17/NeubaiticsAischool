@@ -2,9 +2,8 @@
 
 
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import Sidebar from "./Sidebar";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 import {
   BarChart,
@@ -28,10 +27,21 @@ const baseUrl = "http://127.0.0.1:8000/api";
 const Dashboard = () => {
   const [dashbarData, setDashbarData] = useState({});
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
+  const [progressMetrics, setProgressMetrics] = useState({
+    videosDone: 0,
+    videosTotal: 0,
+    assignmentsDone: 0,
+    assignmentsTotal: 0,
+    quizzesAttended: 0,
+    quizzesTotal: 0,
+  });
+  const [interviewMetrics, setInterviewMetrics] = useState({
+    unlockedCourses: 0,
+    recommendedCourses: 0,
+    completedInterviews: 0,
+  });
   const studentId = localStorage.getItem("studentId");
-  const [userMessage, setUserMessage] = useState("");
-const [reply, setReply] = useState("");
-const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.title = "LMS | Student Dashboard";
@@ -42,29 +52,118 @@ const [loading, setLoading] = useState(false);
 
     axios.get(`${baseUrl}/chat/student/unread/${studentId}/`)
       .then(res => setUnreadCount(res.data.unread || 0));
+
+    const loadOverallProgress = async () => {
+      try {
+        const enrolledRes = await axios.get(`${baseUrl}/fetch-enrolled-courses/${studentId}`);
+        const enrollments = Array.isArray(enrolledRes.data) ? enrolledRes.data : [];
+        const courses = enrollments
+          .map((e) => e?.course)
+          .filter(Boolean);
+
+        let videosDone = 0;
+        let videosTotal = 0;
+        let assignmentsDone = 0;
+        let assignmentsTotal = 0;
+
+        if (courses.length > 0) {
+          const progressResponses = await Promise.all(
+            courses.map((course) =>
+              axios
+                .get(`${baseUrl}/certificate-status/${studentId}/${course.id}/`)
+                .then((r) => r.data)
+                .catch(() => null)
+            )
+          );
+
+          progressResponses.forEach((row) => {
+            const p = row?.progress;
+            if (!p) return;
+            videosDone += Number(p?.videos?.done || 0);
+            videosTotal += Number(p?.videos?.total || 0);
+            assignmentsDone += Number(p?.assignments?.done || 0);
+            assignmentsTotal += Number(p?.assignments?.total || 0);
+          });
+
+          const [eligibilityRows, interviewHistoryRes] = await Promise.all([
+            Promise.all(
+              courses.map((course) =>
+                axios
+                  .get(`${baseUrl}/interview/eligibility/${studentId}/${course.id}/`)
+                  .then((r) => r.data)
+                  .catch(() => null)
+              )
+            ),
+            axios.get(`${baseUrl}/student/interviews/${studentId}/`).catch(() => ({ data: [] })),
+          ]);
+
+          const unlockedCourses = eligibilityRows.filter((row) => row?.allowed).length;
+          const recommendedCourses = eligibilityRows.filter((row) => row?.recommended).length;
+          const completedInterviews = (Array.isArray(interviewHistoryRes.data) ? interviewHistoryRes.data : []).filter(
+            (item) => item?.status === "completed"
+          ).length;
+
+          setInterviewMetrics({
+            unlockedCourses,
+            recommendedCourses,
+            completedInterviews,
+          });
+        }
+
+        let quizzesTotal = 0;
+        let quizzesAttended = 0;
+        const quizRes = await axios
+          .get(`${baseUrl}/student-assigned-quizzes/${studentId}/`)
+          .catch(() => ({ data: [] }));
+
+        const assignedQuizzes = Array.isArray(quizRes.data) ? quizRes.data : [];
+        quizzesTotal = assignedQuizzes.length;
+
+        if (quizzesTotal > 0) {
+          const attempts = await Promise.all(
+            assignedQuizzes.map((q) =>
+              axios
+                .get(`${baseUrl}/fetch-quiz-attempt-status/${q.id}/${studentId}`)
+                .then((r) => Boolean(r?.data?.bool))
+                .catch(() => false)
+            )
+          );
+          quizzesAttended = attempts.filter(Boolean).length;
+        }
+
+        setProgressMetrics({
+          videosDone,
+          videosTotal,
+          assignmentsDone,
+          assignmentsTotal,
+          quizzesAttended,
+          quizzesTotal,
+        });
+      } catch {
+        setProgressMetrics({
+          videosDone: 0,
+          videosTotal: 0,
+          assignmentsDone: 0,
+          assignmentsTotal: 0,
+          quizzesAttended: 0,
+          quizzesTotal: 0,
+        });
+        setInterviewMetrics({
+          unlockedCourses: 0,
+          recommendedCourses: 0,
+          completedInterviews: 0,
+        });
+      }
+    };
+
+    loadOverallProgress();
   }, [studentId]);
 
-
-  const sendMessage = async () => {
-  if (!userMessage.trim()) return;
-
-  try {
-    setLoading(true);
-
-    const res = await axios.post(`${baseUrl}/ai-chat/`, {
-      question: userMessage,
-      role: "student",
-      user_id: studentId
-    });
-
-    setReply(res.data.answer);
-    setUserMessage("");
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 576);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const barData = [
     { name: "Enrolled", value: dashbarData.enrolled_courses || 0 },
@@ -79,6 +178,20 @@ const [loading, setLoading] = useState(false);
   ];
 
   const COLORS = ["#00c9e8", "#1c808d"];
+  const chartHeight = isMobile ? 220 : 240;
+  const pieHeight = isMobile ? 120 : 110;
+  const pieInnerRadius = isMobile ? 34 : 32;
+  const pieOuterRadius = isMobile ? 52 : 50;
+
+  const videoPercent = progressMetrics.videosTotal
+    ? Math.round((progressMetrics.videosDone / progressMetrics.videosTotal) * 100)
+    : 0;
+  const assignmentPercent = progressMetrics.assignmentsTotal
+    ? Math.round((progressMetrics.assignmentsDone / progressMetrics.assignmentsTotal) * 100)
+    : 0;
+  const quizPercent = progressMetrics.quizzesTotal
+    ? Math.round((progressMetrics.quizzesAttended / progressMetrics.quizzesTotal) * 100)
+    : 0;
 
   return (
     <div className="dashboard-layout">
@@ -86,35 +199,6 @@ const [loading, setLoading] = useState(false);
 
       <div className="dashboard-content">
 
-
-        {/* AI Chat Assistant */}
-<div className="ai-chat-section mt-4">
-  <h4>AI Chat Assistant</h4>
-
-  {reply && (
-    <div className="ai-message">
-      <strong>AI:</strong> {reply}
-    </div>
-  )}
-
-  <div className="ai-input-group">
-    <input
-      type="text"
-      value={userMessage}
-      onChange={(e) => setUserMessage(e.target.value)}
-      placeholder="Ask about your enrolled courses..."
-      className="form-control"
-    />
-
-    <button
-      onClick={sendMessage}
-      disabled={loading}
-      className="btn btn-primary mt-2"
-    >
-      {loading ? "Thinking..." : "Send"}
-    </button>
-  </div>
-</div>
         <h4 className="upage-title">Student Dashboard</h4>
 
         {/* ✅ TOP CARDS */}
@@ -124,6 +208,7 @@ const [loading, setLoading] = useState(false);
   <StatCard title="Assignments Done" value={dashbarData.complete_assignments} icon="bi-check-circle-fill" />
   <StatCard title="Pending" value={dashbarData.pending_assignments} icon="bi-clock-fill" />
   <StatCard title="Certificates Achieved" value={unreadCount} icon="bi-mortarboard-fill" />
+  <StatCard title="Interview Ready" value={interviewMetrics.unlockedCourses} icon="bi-person-workspace" />
 </div>
 
 
@@ -132,7 +217,8 @@ const [loading, setLoading] = useState(false);
           {/* BAR CHART */}
           <div className="chart-card">
             <h6>Course Overview</h6>
-          <ResponsiveContainer width="100%" height={280}>
+            <div className="chart-box">
+          <ResponsiveContainer width="100%" height={chartHeight}>
   <BarChart data={barData}>
     <CartesianGrid stroke="rgba(255,255,255,0.12)" strokeDasharray="3 3" />
 
@@ -163,13 +249,15 @@ const [loading, setLoading] = useState(false);
     <Bar dataKey="value" fill="#00c9e8" radius={[6, 6, 0, 0]} />
   </BarChart>
 </ResponsiveContainer>
+            </div>
 
           </div>
 
           {/* AREA CHART */}
           <div className="chart-card">
             <h6>Activity Trend</h6>
-    <ResponsiveContainer width="100%" height={280}>
+            <div className="chart-box">
+    <ResponsiveContainer width="100%" height={chartHeight}>
   <AreaChart data={barData}>
     <defs>
       <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -214,18 +302,38 @@ const [loading, setLoading] = useState(false);
     />
   </AreaChart>
 </ResponsiveContainer>
+            </div>
 
           </div>
 
           {/* PIE + CTA */}
           <div className="side-card">
             <h6>Progress</h6>
-            <ResponsiveContainer width="100%" height={200}>
+            <div className="progress-circles">
+              <ProgressCircle
+                label="Videos"
+                percent={videoPercent}
+                meta={`${progressMetrics.videosDone}/${progressMetrics.videosTotal}`}
+              />
+              <ProgressCircle
+                label="Assignments"
+                percent={assignmentPercent}
+                meta={`${progressMetrics.assignmentsDone}/${progressMetrics.assignmentsTotal}`}
+              />
+              <ProgressCircle
+                label="Quiz Attended"
+                percent={quizPercent}
+                meta={`${progressMetrics.quizzesAttended}/${progressMetrics.quizzesTotal}`}
+              />
+            </div>
+
+            <div className="pie-chart-wrap">
+            <ResponsiveContainer width="100%" height={pieHeight}>
               <PieChart>
                 <Pie
                   data={pieData}
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={pieInnerRadius}
+                  outerRadius={pieOuterRadius}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -235,9 +343,32 @@ const [loading, setLoading] = useState(false);
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
+            </div>
 
-            <Link to="/my-assignments" className="cta-btn">
-              View Assignments
+          </div>
+
+          <div className="side-card interview-readiness-card">
+            <h6>Interview Readiness</h6>
+            <div className="interview-readiness-metrics">
+              <div>
+                <strong>{interviewMetrics.unlockedCourses}</strong>
+                <span>Unlocked Courses</span>
+              </div>
+              <div>
+                <strong>{interviewMetrics.recommendedCourses}</strong>
+                <span>Recommended Now</span>
+              </div>
+              <div>
+                <strong>{interviewMetrics.completedInterviews}</strong>
+                <span>Completed Interviews</span>
+              </div>
+            </div>
+            <p className="interview-readiness-copy">
+              Use AI interviews after course practice to improve self-introduction,
+              technical answers, coding explanation, and confidence.
+            </p>
+            <Link to="/mock-interviews" className="interview-readiness-link">
+              Open Mock Interviews
             </Link>
           </div>
         </div>
@@ -263,6 +394,24 @@ const StatCard = ({ title, value, icon }) => (
     
   </div>
 );
+
+const ProgressCircle = ({ label, percent, meta }) => {
+  const value = Math.max(0, Math.min(100, Number(percent || 0)));
+  return (
+    <div className="mini-progress">
+      <div
+        className="mini-progress-ring"
+        style={{
+          background: `conic-gradient(#00ffff ${value * 3.6}deg, rgba(255,255,255,0.14) 0deg)`,
+        }}
+      >
+        <div className="mini-progress-inner">{value}%</div>
+      </div>
+      <span>{label}</span>
+      <small>{meta}</small>
+    </div>
+  );
+};
 
 /* ✅ QUIZ CARD WITH LINK */
 // const QuizCard = () => (

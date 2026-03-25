@@ -1,5 +1,10 @@
 *{
   text-decoration: none;
+  scrollbar-width: none;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -9,9 +14,22 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-body::-webkit-scrollbar{
+html {
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
   display: none;
 }
 
@@ -21,9 +39,108 @@ code {
 }
 
 html, body, #root {
-  height: 100%;
+  min-height: 100%;
+  height: auto;
   margin: 0;
   padding: 0;
+}
+
+#root {
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.app-page-shell {
+  width: 100%;
+}
+
+.teacher-main-content,
+.user-main-content {
+  display: flex;
+  justify-content: center;
+}
+
+.teacher-main-content > .app-page-shell,
+.user-main-content > .app-page-shell {
+  width: min(100%, 1180px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.teacher-main-content :where(.container, .container-fluid),
+.user-main-content :where(.container, .container-fluid) {
+  width: min(100%, 1120px);
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.teacher-main-content :where(.row),
+.user-main-content :where(.row) {
+  justify-content: center;
+}
+
+.teacher-main-content :where([class*="col-"]),
+.user-main-content :where([class*="col-"]) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.teacher-main-content :where(.col-md-9, .col-lg-9, .col-xl-9),
+.teacher-main-content :where(.col-md-8, .col-lg-8, .col-xl-8),
+.teacher-main-content :where(.col-md-10, .col-lg-10, .col-xl-10),
+.user-main-content :where(.col-md-9, .col-lg-9, .col-xl-9),
+.user-main-content :where(.col-md-8, .col-lg-8, .col-xl-8),
+.user-main-content :where(.col-md-10, .col-lg-10, .col-xl-10) {
+  flex: 0 0 min(100%, 1080px);
+  max-width: min(100%, 1080px);
+}
+
+.teacher-main-content :where(.card, .glass-card, .assignment-card, .assignmentglass-card, .chapterglass-card, .studyglass-card, .student-assignments-shell, .qr-glass-card),
+.user-main-content :where(.card, .glass-card, .assignment-card, .assignmentglass-card, .chapterglass-card, .studyglass-card, .student-assignments-shell, .qr-glass-card) {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.teacher-main-content :where(.card, .assignment-card, .student-assignments-shell),
+.user-main-content :where(.card, .assignment-card, .student-assignments-shell) {
+  border-radius: 20px;
+}
+
+.teacher-main-content :where(.table-responsive, .users-table-wrap, .details-table-wrap, .assignment-table-wrap),
+.user-main-content :where(.table-responsive, .users-table-wrap, .details-table-wrap, .assignment-table-wrap) {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.teacher-main-content :where(.container, .container-fluid),
+.user-main-content :where(.container, .container-fluid) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (max-width: 992px) {
+  .teacher-main-content,
+  .user-main-content {
+    display: block;
+  }
+
+  .teacher-main-content > .app-page-shell,
+  .user-main-content > .app-page-shell,
+  .teacher-main-content :where(.container, .container-fluid),
+  .user-main-content :where(.container, .container-fluid),
+  .teacher-main-content :where(.col-md-9, .col-lg-9, .col-xl-9, .col-md-8, .col-lg-8, .col-xl-8, .col-md-10, .col-lg-10, .col-xl-10),
+  .user-main-content :where(.col-md-9, .col-lg-9, .col-xl-9, .col-md-8, .col-lg-8, .col-xl-8, .col-md-10, .col-lg-10, .col-xl-10) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .teacher-main-content :where(.card, .glass-card, .assignment-card, .assignmentglass-card, .chapterglass-card, .studyglass-card, .student-assignments-shell, .qr-glass-card),
+  .user-main-content :where(.card, .glass-card, .assignment-card, .assignmentglass-card, .chapterglass-card, .studyglass-card, .student-assignments-shell, .qr-glass-card) {
+    border-radius: 16px;
+  }
 }
 
 .app-wrapper {
@@ -64,4 +181,132 @@ html, body, #root {
   background: white;
   border: 1px solid #ddd;
   margin-right: auto;
+}
+
+.swal2-container {
+  padding: 16px !important;
+  z-index: 99999 !important;
+}
+
+.app-swal-popup {
+  width: min(100%, 460px) !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(0, 255, 255, 0.28) !important;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.32), 0 0 24px rgba(0, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px) !important;
+  padding: 1.25rem !important;
+}
+
+.app-swal-modal {
+  padding: 1.45rem !important;
+}
+
+.app-swal-toast {
+  width: min(100%, 420px) !important;
+  padding: 1rem 1.1rem !important;
+}
+
+.app-swal-title {
+  color: #f2feff !important;
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+.app-swal-html {
+  color: rgba(226, 251, 255, 0.88) !important;
+  font-size: 0.97rem !important;
+  line-height: 1.55 !important;
+  margin-top: 0.35rem !important;
+}
+
+.app-swal-actions {
+  gap: 10px !important;
+  margin-top: 1rem !important;
+}
+
+.app-swal-confirm,
+.app-swal-cancel,
+.app-swal-deny {
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+.app-swal-confirm {
+  background: linear-gradient(135deg, #00b8c8, #00e0d0) !important;
+  color: #062a32 !important;
+}
+
+.app-swal-cancel,
+.app-swal-deny {
+  background: rgba(255, 107, 107, 0.14) !important;
+  color: #ffdcdc !important;
+  border: 1px solid rgba(255, 107, 107, 0.3) !important;
+}
+
+.app-swal-icon.swal2-success {
+  border-color: rgba(37, 211, 102, 0.5) !important;
+  color: #25d366 !important;
+}
+
+.app-swal-icon.swal2-warning {
+  border-color: rgba(255, 193, 7, 0.45) !important;
+  color: #ffd55c !important;
+}
+
+.app-swal-icon.swal2-error {
+  border-color: rgba(255, 107, 107, 0.45) !important;
+  color: #ff7e7e !important;
+}
+
+.app-swal-icon.swal2-info,
+.app-swal-icon.swal2-question {
+  border-color: rgba(0, 200, 200, 0.45) !important;
+  color: #65f5ff !important;
+}
+
+.app-swal-timer {
+  background: linear-gradient(90deg, #00e0d0, #25d366) !important;
+}
+
+.swal2-toast .swal2-title {
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .swal2-container {
+    padding: 12px !important;
+  }
+
+  .app-swal-popup,
+  .app-swal-toast {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 18px !important;
+  }
+
+  .app-swal-title {
+    font-size: 1.05rem !important;
+  }
+
+  .app-swal-html {
+    font-size: 0.92rem !important;
+  }
+
+  .app-swal-actions {
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  .app-swal-confirm,
+  .app-swal-cancel,
+  .app-swal-deny {
+    width: 100% !important;
+  }
 }

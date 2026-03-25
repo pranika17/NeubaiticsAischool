@@ -1,11 +1,11 @@
-.card{
+.teacher-profile-settings-page .card {
     margin-top: 40px;
-    margin-left: 120px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @media (max-width: 992px) {
-    .card {
-        margin-left: 0px;
+    .teacher-profile-settings-page .card {
         padding: 10px;
     }
 }

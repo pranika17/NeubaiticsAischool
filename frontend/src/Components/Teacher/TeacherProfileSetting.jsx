@@ -1,4 +1,3 @@
-import TeacherSidebar from './TeacherSidebar'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -125,7 +124,7 @@ const TeacherProfileSetting = () => {
     }
 
     return (
-        <div className='container mt-4 '>
+        <div className='container mt-4 teacher-profile-settings-page'>
             <div className='row'>
                 {/* <aside className='col-md-3'>
                     <TeacherSidebar />

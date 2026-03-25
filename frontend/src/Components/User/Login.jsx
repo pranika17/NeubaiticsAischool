@@ -381,6 +381,7 @@ import Swal from 'sweetalert2';
 import './Login.css';
 
 const baseUrl = 'http://127.0.0.1:8000/api';
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Login = () => {
   const studentLoginStatus = localStorage.getItem('studentLoginStatus');
@@ -436,6 +437,19 @@ const Login = () => {
       return;
     }
 
+    if (!emailPattern.test(String(studentLoginData.email).trim())) {
+      Swal.fire({
+        title: 'Please provide a valid email address!',
+        icon: 'warning',
+        toast: true,
+        timer: 2200,
+        position: 'top',
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
+      return;
+    }
+
     try {
       const res = await axios.post(baseUrl + "/student-login", {
         email: studentLoginData.email,
@@ -448,6 +462,10 @@ const Login = () => {
       if (res.data.bool === true) {
         localStorage.setItem("studentLoginStatus", "true");
         localStorage.setItem("studentId", res.data.student_id);
+        if (res.data.chat_token) {
+          localStorage.setItem("chatAuthTokenStudent", res.data.chat_token);
+          localStorage.setItem("chatAuthToken", res.data.chat_token);
+        }
 
         Swal.fire({
           title: "Login Successful!",
@@ -467,7 +485,7 @@ const Login = () => {
       if (res.data.msg === "waiting_approval") {
         Swal.fire({
           title: "Waiting for Approval",
-          text: "Your account has been created but is not approved by admin yet.",
+          text: res.data.detail || "Your account is not approved by admin yet. After admin approval, please login.",
           icon: "info",
           toast: true,
           timer: 3000,

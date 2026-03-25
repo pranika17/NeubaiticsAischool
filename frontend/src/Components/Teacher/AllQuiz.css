@@ -1,29 +1,27 @@
-/* 🔷 Main Card Theme */
 .quiz-card {
   background: rgba(8, 63, 72, 0.55);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 255, 255, 0.4);
   border-radius: 16px;
-  box-shadow: 0 10px 12px rgba(0,255,255,0.25);
+  box-shadow: 0 10px 12px rgba(0, 255, 255, 0.25);
   padding: 12px;
-  
+  margin-top: 40px;
+  margin-left: 0;
 }
 
-/* Header Title */
 .quiz-card .card-header {
-  background: rgba(0,255,255,0.15) !important;
+  background: rgba(0, 255, 255, 0.15) !important;
   color: #00ffff !important;
-  border-bottom: 1px solid rgba(0,255,255,0.4);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.4);
   font-weight: 700;
   font-size: 18px;
 }
 
-
 .cyan-search::placeholder {
-  color: #05efef !important;   /* Dark teal placeholder */
+  color: #05efef !important;
   opacity: 0.7;
 }
-/* 🔷 Neon Table */
+
 .modern-table {
   width: 100%;
   border-collapse: collapse;
@@ -33,18 +31,13 @@
 .modern-table th,
 .modern-table td {
   padding: 14px 12px;
-  border-bottom: 1px solid rgba(0,255,255,0.3);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
 }
 
 .modern-table thead th {
   color: #ffffff !important;
   font-weight: 600;
-  border-bottom: 2px solid rgba(0,255,255,0.4);
-}
-
-.hover.row{
-  background-color: aqua;
-  
+  border-bottom: 2px solid rgba(0, 255, 255, 0.4);
 }
 
 .hover-row:hover {
@@ -53,62 +46,128 @@
   transition: 0.6s;
 }
 
-/* 🔷 Search Input */
 .quiz-search {
-  background: rgba(0,255,255,0.06);
-  border: 1px solid rgba(0,255,255,0.6);
+  background: rgba(0, 255, 255, 0.06);
+  border: 1px solid rgba(0, 255, 255, 0.6);
   color: #00ffff;
 }
+
 .quiz-search:focus {
   border: 1px solid #00ffff;
-  box-shadow: 0 0 10px rgba(0,255,255,0.4);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
   outline: none;
 }
 
-/* 🔷 Buttons – Neon Glow */
 .neon-btn {
   border: 1px solid #00ffff;
   background: transparent !important;
   color: #00ffff !important;
   transition: 0.25s;
 }
+
 .neon-btn:hover {
-  background: rgba(0,255,255,0.25) !important;
+  background: rgba(0, 255, 255, 0.25) !important;
   box-shadow: 0 0 12px #00ffff;
   color: black !important;
 }
 
-/* Danger Glow for delete */
 .neon-danger:hover {
-  background: rgba(255,0,0,0.35) !important;
+  background: rgba(255, 0, 0, 0.35) !important;
   box-shadow: 0 0 10px red;
 }
 
-
-.quiz-card{
-  margin-top: 40px;
-  margin-left: 40px;
+.quiz-actions-wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 
+.quiz-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.allquiz-total-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  white-space: nowrap;
+}
 
 @media (max-width: 992px) {
   .quiz-card {
-    margin-left: -20px;
+    margin-left: 0;
+    padding: 12px;
+  }
+
+  .allquiz-page,
+  .allquiz-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .quiz-toolbar {
+    gap: 10px;
+  }
+
+  .quiz-toolbar .quiz-search {
+    width: 65% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .quiz-card {
+    margin-top: 18px;
+    margin-left: 0;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .quiz-card .card-body {
     padding: 10px;
   }
 
-
-  .badge {
-    
-    top: -60px;     /* move to right */
-    margin-left: 170px;      /* move upward */
-    font-size: 12px;
-    padding: 6px 10px;
+  .quiz-toolbar {
+    flex-direction: column;
+    align-items: center !important;
+    gap: 10px;
+    margin-bottom: 12px !important;
   }
 
+  .quiz-toolbar .quiz-search {
+    width: 100% !important;
+  }
 
-  
+  .quiz-toolbar .allquiz-total-badge {
+    align-self: center !important;
+    margin: 0 auto;
+    margin-top: 10px;
+    font-size: 12px;
+    padding: 6px 10px;
+    width: fit-content;
+  }
 
+  .modern-table th,
+  .modern-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+    vertical-align: top;
+  }
 
-  
+  .quiz-actions-cell {
+    text-align: center !important;
+  }
+
+  .quiz-actions-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .quiz-actions-wrap .btn {
+    width: 100%;
+  }
 }

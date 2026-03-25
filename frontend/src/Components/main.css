@@ -18,6 +18,13 @@ html, body {
   margin-right: 6%;
   margin-top: 2.5%;
 }
+
+.course-detail-page {
+  width: 100%;
+  max-width: 1220px;
+  margin: 24px auto 0;
+  padding: 0 14px 18px;
+}
 .aks{
   display: block;
   max-width: 100%;

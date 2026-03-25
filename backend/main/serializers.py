@@ -2,6 +2,8 @@ from rest_framework import serializers
 from . import models
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.auth.hashers import make_password
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
@@ -25,6 +27,14 @@ class TeacherSerializer(serializers.ModelSerializer):
         if obj.image:
             return request.build_absolute_uri(obj.image.url)
         return None
+
+    def validate_email(self, value):
+        email = str(value).strip().lower()
+        try:
+            validate_email(email)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Please provide a valid email address.")
+        return email
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
@@ -89,6 +99,14 @@ class StudentSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
         return None
 
+    def validate_email(self, value):
+        email = str(value).strip().lower()
+        try:
+            validate_email(email)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Please provide a valid email address.")
+        return email
+
     def create(self, validated_data):
         # Normalize email
         validated_data['email'] = validated_data['email'].lower().strip()
@@ -113,7 +131,7 @@ class StudentCourseEnrollSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.StudentCourseEnrollment
-        fields = ['id', 'course', 'student', 'course_id', 'student_id']
+        fields = ['id', 'course', 'student', 'course_id', 'student_id', 'status', 'enrolled_time']
 
 # ------------------ FAVORITE COURSES ------------------
 class StudentFavoriteCourseSerializer(serializers.ModelSerializer):
@@ -304,10 +322,28 @@ from .models import TeacherStudentChat, CourseGroupMessage
 class TeacherStudentChatSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.fullname', read_only=True)
     teacher_name = serializers.CharField(source='teacher.full_name', read_only=True)
+    image_url = serializers.SerializerMethodField()
+    audio_url = serializers.SerializerMethodField()
 
     class Meta:
         model = TeacherStudentChat
         fields = '__all__'
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        if obj.image:
+            return obj.image.url
+        return None
+
+    def get_audio_url(self, obj):
+        request = self.context.get("request")
+        if obj.audio and request:
+            return request.build_absolute_uri(obj.audio.url)
+        if obj.audio:
+            return obj.audio.url
+        return None
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -319,6 +355,8 @@ class CourseGroupMessageSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
         source='sender_student.fullname', read_only=True
     )
+    course_id = serializers.IntegerField(source="group.course_id", read_only=True)
+    course_title = serializers.CharField(source="group.course.title", read_only=True)
 
     class Meta:
         model = CourseGroupMessage
@@ -332,9 +370,47 @@ class CourseGroupMessageSerializer(serializers.ModelSerializer):
 
 # ------------------ CHAPTER ------------------
 class ChapterSerializer(serializers.ModelSerializer):
+    video_stream_url = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Chapter
         fields = '__all__'
+
+    def get_video_stream_url(self, obj):
+            request = self.context.get('request')
+            if obj.video_url:
+                return obj.video_url
+            if obj.video:
+                if request:
+                    return request.build_absolute_uri(obj.video.url)
+                return obj.video.url
+            return None
+
+    def validate(self, attrs):
+            if self.instance:
+                final_video = attrs.get('video', self.instance.video)
+                final_video_url = attrs.get('video_url', self.instance.video_url)
+            else:
+                final_video = attrs.get('video')
+                final_video_url = attrs.get('video_url')
+
+            if not final_video and not final_video_url:
+                raise serializers.ValidationError("Provide either an uploaded video or an external video URL.")
+
+            return attrs
+
+    def update(self, instance, validated_data):
+            new_video = validated_data.get('video')
+            new_video_url = validated_data.get('video_url')
+
+            if new_video is not None:
+                validated_data['video_url'] = None
+
+            if new_video_url:
+                validated_data['video'] = None
+
+            return super().update(instance, validated_data)
+
     def __init__(self, *args, **kwargs):
             super(ChapterSerializer, self).__init__(*args, **kwargs)
             request = self.context.get('request')
@@ -432,3 +508,74 @@ class BlogSerializer(serializers.ModelSerializer):
         if obj.video_upload:
             return request.build_absolute_uri(obj.video_upload.url)
         return None
+
+
+class MockInterviewQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.MockInterviewQuestion
+        fields = [
+            'id',
+            'round_type',
+            'question_text',
+            'ideal_points',
+            'coding_prompt',
+            'order',
+            'is_answered',
+        ]
+
+
+class MockInterviewAnswerSerializer(serializers.ModelSerializer):
+    question = MockInterviewQuestionSerializer(read_only=True)
+
+    class Meta:
+        model = models.MockInterviewAnswer
+        fields = [
+            'id',
+            'question',
+            'answer_text',
+            'score',
+            'communication_score',
+            'technical_score',
+            'confidence_score',
+            'feedback',
+            'improvement_tip',
+            'suggested_followup',
+            'created_at',
+            'updated_at',
+        ]
+
+
+class MockInterviewSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student.fullname', read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    questions = MockInterviewQuestionSerializer(many=True, read_only=True)
+    answers = MockInterviewAnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.MockInterview
+        fields = [
+            'id',
+            'student',
+            'student_name',
+            'course',
+            'course_title',
+            'interview_type',
+            'status',
+            'total_questions',
+            'asked_questions',
+            'overall_score',
+            'score_intro',
+            'score_technical',
+            'score_coding',
+            'score_communication',
+            'strengths',
+            'weaknesses',
+            'improvement_plan',
+            'recommended_topics',
+            'ai_summary',
+            'started_at',
+            'completed_at',
+            'updated_at',
+            'questions',
+            'answers',
+        ]

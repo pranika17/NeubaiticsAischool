@@ -6,6 +6,7 @@ import Swal from 'sweetalert2'
 import ProfileImageUpload from "../Teacher/ProfileImageUpload";
 
 const baseUrl = 'http://127.0.0.1:8000/api/student/'  // new endpoint
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Register = () => {
     useEffect(() => {
@@ -42,6 +43,19 @@ const Register = () => {
                 icon: 'warning',
                 toast: true,
                 timer: 2000,
+                position: 'top-right',
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            return;
+        }
+
+        if (!emailPattern.test(String(studentData.email).trim())) {
+            Swal.fire({
+                title: 'Please provide a valid email address!',
+                icon: 'warning',
+                toast: true,
+                timer: 2200,
                 position: 'top-right',
                 timerProgressBar: true,
                 showConfirmButton: false

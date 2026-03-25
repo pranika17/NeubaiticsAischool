@@ -292,6 +292,8 @@ from django.urls import path
 from . import views
 from .views import (
     AIChatView,
+    ProAIChatView,
+    
     workshop_list,
     register_workshop,
     payment_info,
@@ -308,6 +310,8 @@ urlpatterns =[
      path('blog-detail/<int:pk>/', views.BlogDetailAPIView.as_view()),
 
       path('student-assigned-quizzes/<int:student_id>/', views.student_assigned_quizzes),
+      path('student-course-discovery/<int:student_id>/', views.student_course_discovery),
+      path('fetch-recomemded-coourses/<int:student_id>', views.student_course_discovery),
 
       path("quiz-assign-course/", views.quiz_assign_course),
 
@@ -530,6 +534,7 @@ urlpatterns =[
         path('unread-individual-count/<int:student_id>/', views.unread_individual_count),
 
         path('unread-group-count/<int:student_id>/', views.unread_group_count),
+        path('teacher-group-unread-count/<int:teacher_id>/', views.teacher_group_unread_count),
 
       
        path('teacher-group-messages/<int:teacher_id>/', views.TeacherGroupMessages),
@@ -567,10 +572,23 @@ urlpatterns =[
 
     
     path("teacher/approve-certificate/", views.approve_certificate),
+    path("interview/eligibility/<int:student_id>/<int:course_id>/", views.mock_interview_eligibility),
+    path("interview/start/", views.start_mock_interview),
+    path("interview/answer/", views.submit_mock_interview_answer),
+    path("interview/complete/", views.complete_mock_interview),
+    path("interview/report/<int:interview_id>/", views.mock_interview_report),
+    path("student/interviews/<int:student_id>/", views.student_mock_interviews),
      
 
 
-    path("ai-chat/", AIChatView.as_view())
+    path("ai-chat/", ProAIChatView.as_view()),
+    path("ai-voice/", views.AIVoiceView.as_view()),
+    path("ai-translate/", views.AITranslateView.as_view()),
+
+
+    path("quiz/generate-single/", views.generate_single_quiz_question),
+
+    path('submit-coding/', views.submit_coding),
 
 
    

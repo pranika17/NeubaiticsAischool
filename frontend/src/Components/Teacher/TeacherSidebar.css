@@ -12,7 +12,7 @@
   backdrop-filter: blur(12px);
   border-right: 1px solid rgba(0, 255, 255, 0.35);
 
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 16px 10px;
   z-index: 999;
   box-shadow: 0 0 22px rgba(0, 255, 255, 0.25);
@@ -60,6 +60,26 @@
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 255, 255, 0.2);
   transition: 0.25s ease;
+}
+
+.tsidebar-link span:last-of-type {
+  flex: 1;
+}
+
+.tsidebar-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #ff3b5f;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 59, 95, 0.35);
 }
 
 .tsidebar-icon {

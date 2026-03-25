@@ -725,7 +725,7 @@ const submitPayment = async () => {
     })
 
   return (
-    <div className='conatiner mt-4 px-4 hod'>
+    <div className='course-detail-page'>
         <div className='row'>
         <div className="col-lg-3 col-md-6 mt-3">
                     <div className="team-item bg-light">

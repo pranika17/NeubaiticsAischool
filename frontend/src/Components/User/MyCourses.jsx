@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-import Sidebar from "./Sidebar";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./mycourse.css";
@@ -15,10 +13,12 @@ const MyCourses = () => {
   const [courseData, setCourseData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [groupUnreadMap, setGroupUnreadMap] = useState({});
   const navigate = useNavigate();
 
   // ✅ NEW: progress map
   const [progressMap, setProgressMap] = useState({});
+  const [interviewMap, setInterviewMap] = useState({});
 
   useEffect(() => {
     document.title = "LMS | My Courses";
@@ -32,21 +32,44 @@ const MyCourses = () => {
       .then((res) => setCourseData(res.data))
       .catch((err) => console.log(err))
       .finally(() => setLoading(false));
+
+    axios
+      .get(`${baseUrl}/unread-group-count/${studentId}/`)
+      .then((res) => {
+        const courses = Array.isArray(res.data?.courses) ? res.data.courses : [];
+        const nextMap = courses.reduce((acc, item) => {
+          acc[item.course_id] = item;
+          return acc;
+        }, {});
+        setGroupUnreadMap(nextMap);
+      })
+      .catch((err) => console.log(err));
   }, [studentId]);
 
   // ✅ fetch certificate status for each course (only when popup open)
   const loadProgressForCourses = async (courses) => {
     try {
       const map = {};
+      const nextInterviewMap = {};
 
       for (const course of courses) {
         const res = await axios.get(
           `${baseUrl}/certificate-status/${studentId}/${course.id}/`
         );
         map[course.id] = res.data;
+
+        try {
+          const interviewRes = await axios.get(
+            `${baseUrl}/interview/eligibility/${studentId}/${course.id}/`
+          );
+          nextInterviewMap[course.id] = interviewRes.data;
+        } catch (error) {
+          nextInterviewMap[course.id] = null;
+        }
       }
 
       setProgressMap(map);
+      setInterviewMap(nextInterviewMap);
     } catch (err) {
       console.log(err);
     }
@@ -103,51 +126,42 @@ const handleCertificate = async (course_id) => {
 
 
   return (
-    <div className="container mt-4 teacher-page">
-      <div className="row">
-        {/* <aside className="col-md-3">
-          <Sidebar />
-        </aside> */}
+    <div className="student-courses-page">
+      <h3 className="page-title">My Courses</h3>
 
-        <section className="col-md-9">
-          <h3 className="page-title">My Courses</h3>
+      {loading ? (
+        <p className="text-center">Loading...</p>
+      ) : groupedByTeacher.length === 0 ? (
+        <p className="text-center">No courses found</p>
+      ) : (
+        <div className="course-card-grid">
+          {groupedByTeacher.map((group) => (
+            <div
+              key={group.teacher.id}
+              className="course-card"
+              onClick={() => {
+                setSelectedTeacher(group);
+                loadProgressForCourses(group.courses);
+              }}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="avatar-wrap">
+                <img
+                  src={group.teacher.image_url || "/default-avatar.png"}
+                  className="course-img"
+                  alt={group.teacher.full_name}
+                />
+              </div>
 
-          {loading ? (
-            <p className="text-center">Loading...</p>
-          ) : groupedByTeacher.length === 0 ? (
-            <p className="text-center">No courses found</p>
-          ) : (
-            <div className="course-card-grid">
-              {groupedByTeacher.map((group) => (
-                <div
-                  key={group.teacher.id}
-                  className="course-card"
-                  onClick={() => {
-                    setSelectedTeacher(group);
-                    loadProgressForCourses(group.courses);
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="avatar-wrap">
-  <img
-    src={group.teacher.image_url || "/default-avatar.png"}
-    className="course-img"
-    alt={group.teacher.full_name}
-  />
-</div>
+              <h5 className="course-title">{group.teacher.full_name}</h5>
 
+              <p className="course-info">Total Courses: {group.courses.length}</p>
 
-                  <h5 className="course-title">{group.teacher.full_name}</h5>
-
-                  <p className="course-info">Total Courses: {group.courses.length}</p>
-
-                  <button className="glass-btn w-100">View Courses</button>
-                </div>
-              ))}
+              <button className="glass-btn w-100">View Courses</button>
             </div>
-          )}
-        </section>
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Popup */}
       {selectedTeacher && (
@@ -160,7 +174,7 @@ const handleCertificate = async (course_id) => {
               </button>
             </div>
 
-            <div className="course-card-grid">
+            <div className="popup-course-grid">
               {selectedTeacher.courses.map((course) => {
                 const info = progressMap[course.id];
                 const percent = info?.progress?.overall ?? 0;
@@ -168,9 +182,18 @@ const handleCertificate = async (course_id) => {
                 const eligible = info?.progress?.eligible;
                 const approved = info?.certificate_approved;
                 const pdf = info?.pdf_url;
+                const interviewInfo = interviewMap[course.id];
+                const interviewAllowed = interviewInfo?.allowed;
+                const interviewRecommended = interviewInfo?.recommended;
 
                 return (
-                  <div key={course.id} className="course-card">
+                  <div key={course.id} className="course-card popup-course-card">
+                    {Number(groupUnreadMap[course.id]?.unread_count || 0) > 0 && (
+                      <div className="course-unread-pill">
+                        {groupUnreadMap[course.id].unread_count} unread
+                      </div>
+                    )}
+
                     <div className="d-flex justify-content-between align-items-center">
                       <h6 className="course-title">{course.title}</h6>
                       <ProgressCircle percent={percent} />
@@ -190,12 +213,27 @@ const handleCertificate = async (course_id) => {
                     </div>
 
                     <div className="course-actions mt-3">
-                      <Link to={`/detail/${course.id}`} className="glass-btn">
+                      <Link to={`/user/detail/${course.id}`} className="glass-btn">
                         View
                       </Link>
 
                       <Link to={`/user/study-material/${course.id}`} className="glass-btn">
                         Material
+                      </Link>
+
+                      <Link to={`/mock-interviews/${course.id}`} className="glass-btn">
+                        AI Interview
+                      </Link>
+
+                      <Link
+                        to={`/student/course-chat/${course.id}${
+                          groupUnreadMap[course.id]?.first_unread_message_id
+                            ? `?focus=${groupUnreadMap[course.id].first_unread_message_id}`
+                            : ""
+                        }`}
+                        className="glass-btn"
+                      >
+                        Group Chat
                       </Link>
 
                       {/* ✅ Certificate Button */}
@@ -217,6 +255,15 @@ const handleCertificate = async (course_id) => {
                           ❌ Not Completed
                         </button>
                       )}
+                    </div>
+
+                    <div className="st-status-row mt-2">
+                      <span className={`st-badge ${interviewAllowed ? "ok" : "no"}`}>
+                        Interview {interviewAllowed ? "Unlocked" : "Locked"}
+                      </span>
+                      <span className={`st-badge ${interviewRecommended ? "ok" : "no"}`}>
+                        {interviewRecommended ? "Recommended" : "Practice More"}
+                      </span>
                     </div>
                   </div>
                 );

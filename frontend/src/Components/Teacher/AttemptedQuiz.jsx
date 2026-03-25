@@ -123,16 +123,19 @@ const AttemptedQuiz = () => {
 
   const [studentData, setStudentData] = useState([]);
   const { quiz_id } = useParams();
+  const teacherId = localStorage.getItem("teacherId");
 
   // Fetch all students who attempted this quiz
   useEffect(() => {
-    if (!quiz_id) return;
+    if (!quiz_id || !teacherId) return;
 
     axios
-      .get(`${baseUrl}/fetch-attempted-students/${quiz_id}/`)
+      .get(`${baseUrl}/attempted-quiz/${quiz_id}`, {
+        params: { teacher_id: teacherId }
+      })
       .then(res => setStudentData(res.data))
       .catch(err => console.log(err));
-  }, [quiz_id]);
+  }, [quiz_id, teacherId]);
 
   return (
     <div className="container mt-4 teacher-page">

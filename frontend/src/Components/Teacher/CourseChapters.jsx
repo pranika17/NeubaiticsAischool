@@ -85,13 +85,15 @@ const CourseChapters = () => {
                         </thead>
                         <tbody className='text-center'>
                             {chapterData.map((chapter,index) => 
-                                <tr>
+                                <tr key={chapter.id}>
                                 <td><Link to={`/edit-chapter/` +chapter.id}>{chapter.title}</Link></td>
                                 <td>
                                     <video controls width={200}>
-                                        <source src={chapter.video} type='video/webcam' />
-                                        <source src={chapter.video} type='video/mp4' />
+                                        <source src={chapter.video_stream_url || chapter.video_url || chapter.video} type='video/mp4' />
                                     </video>
+                                    <div className='mt-2 small text-muted'>
+                                      {chapter.video_url ? 'External video URL' : 'Uploaded video'}
+                                    </div>
                                 </td>
                                 <td>{chapter.remarks}</td>
                                 <td className='text-center'>

@@ -14,9 +14,6 @@ const TeacherDashboard = () => {
   const [students, setStudents] = useState([]);
   const [chatInfo, setChatInfo] = useState({ individuals: [], groups: [] });
   const [expandedStudent, setExpandedStudent] = useState(null);
-  const [userMessage, setUserMessage] = useState("");
-  const [reply, setReply] = useState("");
-  const [loading, setLoading] = useState(false);
 
   // ✅ NEW: progress list
   const [progressList, setProgressList] = useState([]);
@@ -24,28 +21,6 @@ const TeacherDashboard = () => {
   useEffect(() => {
     document.title = "LMS | Teacher Dashboard";
   }, []);
-
-
-  const sendMessage = async () => {
-  if (!userMessage.trim()) return;
-
-  try {
-    setLoading(true);
-
-    const res = await axios.post(`${baseUrl}/ai-chat/`, {
-      question: userMessage,
-      role: "teacher",
-      user_id: teacherId
-    });
-
-    setReply(res.data.answer);
-    setUserMessage("");
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
 
   // Chat info
   useEffect(() => {
@@ -331,37 +306,6 @@ const TeacherDashboard = () => {
             </tbody>
           </table>
         </div>
-
-        {/* AI Chat Section */}
-        <div className="ai-chat-section mt-4">
-          <h4>AI Chat Assistant</h4>
-          <div className="ai-chat-container">
-            <div className="ai-chat-messages">
-              {reply && (
-                <div className="ai-message">
-                  <strong>AI:</strong> {reply}
-                </div>
-              )}
-            </div>
-            <div className="ai-input-group">
-              <input
-                type="text"
-                value={userMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
-                placeholder="Ask a question about your courses..."
-                className="form-control"
-              />
-              <button
-                onClick={sendMessage}
-                disabled={loading}
-                className="btn btn-primary"
-              >
-                {loading ? "Sending..." : "Send"}
-              </button>
-            </div>
-          </div>
-        </div>
-
       </main>
     </div>
   );

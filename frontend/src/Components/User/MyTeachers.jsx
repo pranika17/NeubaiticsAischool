@@ -8,6 +8,7 @@ import Sidebar from './Sidebar'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import axios from 'axios'
+import './MyTeachers.css'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -17,17 +18,32 @@ const MyTeachers = () => {
 
     const studentId=localStorage.getItem('studentId')
     const [teacherData,setteacherData]=useState([])
+    const [unreadMap, setUnreadMap] = useState({})
 
     useEffect(()=>{
-        try{
+        const loadTeachers = () => {
             axios.get(baseUrl+'/fetch-my-teachers/'+studentId)
             .then((res)=>{
                 setteacherData(res.data)
-            });
-        }catch(error){
-            console.log(error)
-        }
-      },[]);
+            })
+            .catch((error)=>console.log(error));
+
+            axios.get(baseUrl+`/student/chat-dashboard/${studentId}/`)
+            .then((res)=>{
+                const individuals = Array.isArray(res.data?.individuals) ? res.data.individuals : [];
+                const nextMap = individuals.reduce((acc, item) => {
+                    acc[item.id] = Number(item.unread || 0);
+                    return acc;
+                }, {});
+                setUnreadMap(nextMap);
+            })
+            .catch((error)=>console.log(error));
+        };
+
+        loadTeachers();
+        const interval = setInterval(loadTeachers, 10000);
+        return () => clearInterval(interval);
+      },[studentId]);
 
       const [successMsg,setsuccessMsg]=useState('')
       const [errorMsg,seterrorMsg]=useState('')
@@ -78,16 +94,16 @@ const MyTeachers = () => {
       }
 
   return (
-    <div className='container mt-4'>
+    <div className='container mt-4 my-teachers-page'>
         <div className='row'>
             {/* <aside className='col-md-3'>
                 <Sidebar />
             </aside> */}
-            <section className='col-md-9'>
-                <div className='card'>
-                    <h5 className='card-header'><i class="bi bi-person-check-fill"/> My Teachers</h5>
-                    <div className='card-body  table-responsive'>
-                        <table className='table table-striped table-hover'>
+            <section className='col-md-9 my-teachers-section'>
+                <div className='my-teachers-card'>
+                    <h5 className='my-teachers-header'><i className="bi bi-person-check-fill"/> My Teachers</h5>
+                    <div className='my-teachers-table-wrap'>
+                        <table className='table my-teachers-table'>
                             <thead>
                                 <tr>
                                     <th  className='text-center'>Instructer</th>
@@ -97,7 +113,7 @@ const MyTeachers = () => {
                             </thead>
                             <tbody>
                             {teacherData.map((row,index) =>
-                                <tr>
+                                <tr key={row.teacher.id || index}>
                                     <td  className='text-center'><Link to={`/teacher-detail/`+row.teacher.id}><img
   className='imgmeet'
   src={row.teacher.image_url ? row.teacher.image_url : '/default-avatar.png'}
@@ -106,12 +122,16 @@ const MyTeachers = () => {
 </Link></td>
                                     <td className='text-center'><Link to={`/teacher-detail/`+row.teacher.id}>{row.teacher.full_name}</Link></td>
                                     <td className='text-center'> <Link
-                                
                                                               to={`/student/chat/${studentId}/${row.teacher.id}`}
-                                                              className="btn btn-success btn-sm"
+                                                              className="btn btn-success btn-sm my-teachers-chat-btn"
                                                               onClick={(e) => e.stopPropagation()}
                                                             >
                                                               <i className="bi bi-whatsapp"></i>
+                                                              {Number(unreadMap[row.teacher.id] || 0) > 0 && (
+                                                                <span className="my-teachers-chat-badge">
+                                                                  {unreadMap[row.teacher.id]}
+                                                                </span>
+                                                              )}
                                                             </Link>
                                     
                                     </td>

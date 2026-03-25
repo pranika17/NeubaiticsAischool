@@ -1,19 +1,60 @@
-/* ============================= */
-/* HORIZONTAL SCROLL ONLY (MOBILE) */
-/* ============================= */
-@media (max-width: 768px) {
+.assignquiz-page {
+  padding-left: 0;
+  padding-right: 0;
+}
 
-  .table-scroll {
-    overflow-x: auto;              /* ✅ horizontal scroll */
-    overflow-y: hidden;            /* ❌ no vertical scroll */
-    -webkit-overflow-scrolling: touch;
-    border-radius: 12px;
+.assignquiz-card {
+  width: 100%;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+}
+
+.assignquiz-table {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.assignquiz-table th,
+.assignquiz-table td {
+  vertical-align: middle;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .assignquiz-page {
+    margin-top: 0.75rem !important;
   }
 
-  /* force table wider than screen */
+  .assignquiz-card .card-header,
+  .assignquiz-card .card-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .assignquiz-table {
-    min-width: 520px;              /* 👈 adjust if needed */
-    width: 100%;
+    min-width: 600px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .assignquiz-page {
+    margin-top: 0.5rem !important;
   }
 
+  .assignquiz-card .card-header,
+  .assignquiz-card .card-body {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .assignquiz-table {
+    min-width: 520px;
+  }
 }

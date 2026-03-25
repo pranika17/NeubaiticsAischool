@@ -1,28 +1,37 @@
 /* AddStudyMaterial.css */
 
-/* spacing like add course */
-.teacher-card{
-  padding-bottom: 50px;
-  margin-right: 40px;
+.asm-page {
+  padding-left: 0;
+  padding-right: 0;
 }
 
-/* Glass Card */
+.asm-section {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.teacher-card {
+  padding-bottom: 24px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .g-card {
   background: rgba(6, 54, 69, 0.6);
   backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 28px;
-  border: 1px solid rgba(0,255,255,0.5);
-  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35);
   color: #ffffff;
   transition: 0.3s;
+  margin: 0 auto;
+  width: 100%;
 }
-
-
 
 .g-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 40px rgba(0,255,255,0.65);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.65);
 }
 
 .g-card-title {
@@ -38,26 +47,24 @@
   font-weight: 500;
 }
 
-/* Inputs */
 .g-card-body .form-control {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: #00ffff;
-  border: 1px solid rgba(0,255,255,0.3);
+  border: 1px solid rgba(0, 255, 255, 0.3);
   border-radius: 10px;
   padding: 10px 12px;
 }
 
 .g-card-body .form-control:focus {
   border-color: #00ffff;
-  box-shadow: 0 0 6px rgba(0,255,255,0.4);
-  background: rgba(255,255,255,0.1);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
-/* Submit Button */
 .btn.g-btn {
-  background: rgba(0,255,255,0.2);
-  border: 1px solid rgba(0,255,255,0.5);
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.5);
   color: #00ffff;
   border-radius: 10px;
   padding: 8px 16px;
@@ -65,6 +72,21 @@
 }
 
 .btn.g-btn:hover {
-  background: rgba(0,255,255,0.35);
-  box-shadow: 0 0 10px rgba(0,255,255,0.6);
+  background: rgba(0, 255, 255, 0.35);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .g-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .g-card-title {
+    font-size: 19px;
+  }
+
+  .btn.g-btn {
+    width: 100%;
+  }
 }

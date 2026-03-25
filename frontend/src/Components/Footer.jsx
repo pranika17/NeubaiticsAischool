@@ -337,6 +337,8 @@ const Footer = () => {
                   <li><FaChevronRight className="link-icon" />
     <Link to="/blog">Blog</Link></li>
                   <li><FaChevronRight className="link-icon" />
+    <Link to="/faq">FAQ</Link></li>
+                  <li><FaChevronRight className="link-icon" />
     <Link to="/contact">Contact Us</Link></li>
                   <li><FaChevronRight className="link-icon" />
     <Link to="/refund">Refund Policy</Link></li>

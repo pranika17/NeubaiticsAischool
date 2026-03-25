@@ -1,0 +1,105 @@
+.my-teachers-page {
+  padding-bottom: 24px;
+}
+
+.my-teachers-section {
+  width: 100%;
+}
+
+.my-teachers-card {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(6, 54, 69, 0.72);
+  border: 1px solid rgba(0, 255, 255, 0.34);
+  box-shadow: 0 0 24px rgba(0, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.my-teachers-header {
+  margin: 0 0 20px;
+  color: #00ffff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.my-teachers-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.my-teachers-table {
+  width: 100%;
+  margin-bottom: 0;
+  color: #eaffff;
+  vertical-align: middle;
+}
+
+.my-teachers-table thead th {
+  border-bottom: 2px solid rgba(0, 255, 255, 0.22);
+  color: #ffffff;
+  background: rgba(0, 255, 255, 0.08);
+}
+
+.my-teachers-table td,
+.my-teachers-table th {
+  padding: 16px 14px;
+  border-color: rgba(0, 255, 255, 0.14);
+}
+
+.my-teachers-table tbody tr:hover {
+  background: rgba(0, 255, 255, 0.06);
+}
+
+.my-teachers-table a {
+  color: #d9ffff;
+  font-weight: 600;
+}
+
+.my-teachers-table .btn-success {
+  background: linear-gradient(135deg, #25d366, #1ebe5b);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.22);
+}
+
+.my-teachers-table .btn-success:hover {
+  background: linear-gradient(135deg, #20c55b, #17a74d);
+  color: #ffffff;
+}
+
+.my-teachers-chat-btn {
+  position: relative;
+  overflow: visible;
+}
+
+.my-teachers-chat-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff4d6d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(255, 77, 109, 0.3);
+}
+
+@media (max-width: 768px) {
+  .my-teachers-card {
+    padding: 16px;
+  }
+
+  .my-teachers-header {
+    font-size: 20px;
+  }
+}

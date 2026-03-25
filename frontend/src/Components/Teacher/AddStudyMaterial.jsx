@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import TeacherSidebar from "./TeacherSidebar";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
@@ -88,13 +87,13 @@ const AddStudyMaterial = () => {
   };
 
   return (
-    <div className="container mt-4 teacher-page">
-      <div className="row">
+    <div className="container-fluid mt-4 asm-page">
+      <div className="row justify-content-center">
         {/* <aside className="col-md-3">
           <TeacherSidebar />
         </aside> */}
 
-        <section className="col-md-9">
+        <section className="col-12 col-md-10 col-lg-8 col-xl-7 asm-section">
           <div className="teacher-card">
             <div className="g-card">
               <h3 className="g-card-title">

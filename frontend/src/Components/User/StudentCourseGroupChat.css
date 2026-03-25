@@ -1,0 +1,130 @@
+.student-course-group-page {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.course-group-shell {
+  background: rgba(7, 35, 48, 0.88);
+  border: 1px solid rgba(0, 255, 255, 0.22);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
+}
+
+.course-group-header h3 {
+  margin: 0;
+  color: #eaffff;
+}
+
+.course-group-header span {
+  color: rgba(214, 255, 255, 0.72);
+  font-size: 0.9rem;
+}
+
+.course-group-feed {
+  margin-top: 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.group-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.group-card-unread {
+  border: 1px solid rgba(0, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.18);
+}
+
+.group-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.group-card h5 {
+  margin: 8px 0 0;
+  color: #f4ffff;
+}
+
+.group-card p {
+  margin: 0 0 10px;
+  color: rgba(233, 255, 255, 0.88);
+}
+
+.group-chip {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: capitalize;
+  background: rgba(0, 255, 255, 0.14);
+  color: #80fbff;
+}
+
+.group-new-pill {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ff8b3d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.type-instruction .group-chip {
+  background: rgba(255, 196, 0, 0.14);
+  color: #ffe07e;
+}
+
+.type-meeting .group-chip {
+  background: rgba(37, 211, 102, 0.14);
+  color: #8effbb;
+}
+
+.group-link {
+  color: #73ffd6;
+  font-weight: 700;
+}
+
+.group-meta,
+.group-card small,
+.group-empty {
+  color: rgba(214, 255, 255, 0.68);
+}
+
+.course-group-composer {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.group-input {
+  border-radius: 12px !important;
+}
+
+.group-textarea {
+  min-height: 120px;
+}
+
+.group-send-btn {
+  background: linear-gradient(135deg, #00cdd5, #19f0c7);
+  border: 0;
+  border-radius: 12px;
+  color: #032936;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+
+@media (max-width: 768px) {
+  .course-group-shell {
+    padding: 16px;
+  }
+}

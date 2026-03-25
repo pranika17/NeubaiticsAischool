@@ -69,8 +69,7 @@
 
 
 import React from 'react'
-import { Link, useParams } from 'react-router-dom'
-import Sidebar from './Sidebar'
+import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import axios from 'axios'
@@ -85,19 +84,27 @@ const CourseQuizList = () => {
     const {course_id}=useParams();
     
     useEffect(()=>{
-        try{
-            axios.get(baseUrl+'/fetch-assigned-quiz/'+course_id)
+        if (!studentId) {
+            setQuizData([])
+            return;
+        }
+
+        axios
+            .get(`${baseUrl}/course-quizzes/${course_id}/`, {
+                params: { student_id: studentId }
+            })
             .then((res)=>{
                 setQuizData(res.data)
+            })
+            .catch((error)=>{
+                console.log(error)
+                setQuizData([])
             });
-        }catch(error){
-            console.log(error)
-        }
-      },[]);
+      },[course_id, studentId]);
 
       useEffect(()=>{
         document.title='LMS | Course Quiz List'
-      })
+      }, [])
 
   return (
     <div className='container mt-4'>
@@ -117,10 +124,10 @@ const CourseQuizList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {quizData.map((row,index) =>
-                                <tr>
-                                    <td>{row.quiz.title}</td>
-                                    <td><CheckQuizStatusStudent quiz={row.quiz.id} student={studentId}/></td>
+                                {quizData.map((row) =>
+                                <tr key={row.id}>
+                                    <td>{row.title}</td>
+                                    <td><CheckQuizStatusStudent quiz={row.id} student={studentId}/></td>
                                 </tr>
                                 )}
                             </tbody>

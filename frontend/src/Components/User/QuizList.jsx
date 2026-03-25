@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react'; 
 import axios from 'axios'; 
 import { Link } from 'react-router-dom'; 
-import Sidebar from './Sidebar'; 
 import "./QuizList.css";
 const baseUrl = 'http://127.0.0.1:8000/api';
 
 const QuizList = () => {
   const [quizList, setQuizList] = useState([]);
+  const studentId = localStorage.getItem("studentId");
 
   // Fetch quizzes
   useEffect(() => {
-    axios.get(`${baseUrl}/quiz/`)
+    if (!studentId) {
+      setQuizList([]);
+      return;
+    }
+
+    axios.get(`${baseUrl}/student-assigned-quizzes/${studentId}/`)
       .then(res => setQuizList(res.data))
       .catch(err => console.log(err));
-  }, []);
+  }, [studentId]);
 
   // Set page title
   useEffect(() => {
@@ -31,6 +36,9 @@ const QuizList = () => {
   <h4 className="quiz-heading">Available Quizzes</h4>
 
   <div className='row'>
+    {quizList.length === 0 && (
+      <p className="text-muted">No enrolled quizzes found.</p>
+    )}
     {quizList.map((quiz) => (
       <div key={quiz.id} className='col-md-4 d-flex align-items-stretch'>
         <div className="quiz-card w-100">

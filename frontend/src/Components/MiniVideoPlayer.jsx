@@ -273,7 +273,7 @@ const MiniVideoPlayer = () => {
               <video
                 ref={videoRef}
                 key={currentVideo.id}
-                src={currentVideo.video}
+                src={currentVideo.video_stream_url || currentVideo.video_url || currentVideo.video}
                 controls
                 controlsList="nodownload noplaybackrate"
                 disablePictureInPicture
@@ -312,7 +312,7 @@ const MiniVideoPlayer = () => {
                 onClick={() => changeVideo(ch)}
               >
                 <div className="playlist-thumb">
-                  <video src={ch.video} muted />
+                  <video src={ch.video_stream_url || ch.video_url || ch.video} muted />
                 </div>
 
                 <div className="playlist-info">

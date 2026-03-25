@@ -1,0 +1,130 @@
+.questionlist-page {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.questionlist-section {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.questionlist-card {
+  background: rgba(8, 63, 72, 0.55);
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 12px rgba(0, 255, 255, 0.25);
+  overflow: hidden;
+  margin-left: 55px;
+}
+
+.questionlist-header {
+  background: rgba(0, 255, 255, 0.15) !important;
+  color: #00ffff !important;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.4);
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+}
+
+.questionlist-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.questionlist-table {
+  margin-bottom: 0;
+  color: #d7ffff;
+}
+
+.questionlist-table th,
+.questionlist-table td {
+  vertical-align: top;
+  border-color: rgba(0, 255, 255, 0.25) !important;
+  padding: 14px 12px;
+}
+
+.questionlist-table thead th {
+  color: #ffffff;
+  font-weight: 600;
+  background: rgba(0, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.question-cell {
+  min-width: 280px;
+  font-weight: 500;
+}
+
+.question-options-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  color: #ffffff;
+}
+
+.question-options-list li + li {
+  margin-top: 4px;
+}
+
+.right-answer-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  background: rgba(0, 255, 255, 0.12);
+  color: #00ffff;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: center;
+}
+
+.question-empty {
+  color: #d7ffff;
+  padding: 24px 10px !important;
+}
+
+.questionlist-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.question-add-btn {
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  .questionlist-card {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .questionlist-card {
+    border-radius: 12px;
+  }
+
+  .questionlist-header {
+    font-size: 18px;
+    text-align: left;
+  }
+
+  .questionlist-table th,
+  .questionlist-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .question-cell {
+    min-width: 220px;
+  }
+
+  .questionlist-footer {
+    justify-content: center;
+  }
+
+  .question-add-btn {
+    width: 100%;
+  }
+}

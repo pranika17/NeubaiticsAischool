@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import TeacherSidebar from "./TeacherSidebar";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./AssignQuiz.css";
@@ -13,7 +12,6 @@ const AssignQuiz = () => {
   const teacherId = localStorage.getItem("teacherId");
   const { course_id } = useParams();
 
-  // ✅ Load course + quizzes with assigned status
   const loadData = () => {
     axios
       .get(`${baseUrl}/teacher-course-quizzes/${teacherId}/${course_id}/`)
@@ -53,7 +51,6 @@ const AssignQuiz = () => {
             showConfirmButton: false,
           });
 
-          // ✅ refresh list after assigning
           loadData();
         }
       })
@@ -61,75 +58,63 @@ const AssignQuiz = () => {
   };
 
   return (
-    <div className="container mt-4 ">
-      <div className="row">
-        {/* <aside className="col-md-3">
-          <TeacherSidebar />
-        </aside> */}
+    <div className="container-fluid assignquiz-page mt-4">
+      <div className="card assignquiz-card">
+        <h5 className="card-header">Assign Quiz for {courseData.title}</h5>
 
-        <section className="col-md-9">
-          <div className="card">
-            <h5 className="card-header">
-              Assign Quiz for {courseData.title}
-            </h5>
+        <div className="card-body">
+          <div className="table-scroll">
+            <table className="table table-bordered assignquiz-table">
+              <thead>
+                <tr>
+                  <th>Quiz Name</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-            <div className="card-body">
-              <div className="table-scroll">
-               <table className="table table-bordered assignquiz-table">
-                <thead>
-                  <tr>
-                    <th>Quiz Name</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+              <tbody>
+                {quizData.length > 0 ? (
+                  quizData.map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <Link to={`/all-questions/${row.id}`}>{row.title}</Link>
+                      </td>
 
-                <tbody>
-                  {quizData.length > 0 ? (
-                    quizData.map((row) => (
-                      <tr key={row.id}>
-                        <td>
-                          <Link to={`/all-questions/${row.id}`}>
-                            {row.title}
-                          </Link>
-                        </td>
+                      <td>
+                        {row.assigned ? (
+                          <span className="badge bg-success">Assigned</span>
+                        ) : (
+                          <span className="badge bg-warning text-dark">
+                            Not Assigned
+                          </span>
+                        )}
+                      </td>
 
-                        <td>
-                          {row.assigned ? (
-                            <span className="badge bg-success">Assigned</span>
-                          ) : (
-                            <span className="badge bg-warning text-dark">
-                              Not Assigned
-                            </span>
-                          )}
-                        </td>
-
-                        <td>
-                          <button
-                            onClick={() => assignQuiz(row.id)}
-                            disabled={row.assigned}
-                            className={`btn btn-sm ${
-                              row.assigned ? "btn-secondary" : "btn-success"
-                            }`}
-                          >
-                            {row.assigned ? "Already Assigned" : "Assign"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="3" className="text-center">
-                        No quizzes available
+                      <td>
+                        <button
+                          onClick={() => assignQuiz(row.id)}
+                          disabled={row.assigned}
+                          className={`btn btn-sm ${
+                            row.assigned ? "btn-secondary" : "btn-success"
+                          }`}
+                        >
+                          {row.assigned ? "Already Assigned" : "Assign"}
+                        </button>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-              </div>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center">
+                      No quizzes available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );

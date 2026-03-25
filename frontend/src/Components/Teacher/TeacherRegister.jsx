@@ -165,13 +165,6 @@
 
 
 
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -179,6 +172,7 @@ import Swal from "sweetalert2";
 import ProfileImageUpload from "./ProfileImageUpload";
 
 const baseUrl = "http://127.0.0.1:8000/api/teacher/";
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TeacherRegister = () => {
   useEffect(() => {
@@ -224,6 +218,19 @@ const TeacherRegister = () => {
       return;
     }
 
+    if (!emailPattern.test(String(teacherData.email).trim())) {
+      Swal.fire({
+        title: "Please provide a valid email address!",
+        icon: "warning",
+        toast: true,
+        timer: 2200,
+        position: "top-right",
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
     const formData = new FormData();
     for (let key in teacherData) {
       if (teacherData[key]) formData.append(key, teacherData[key]);
@@ -261,8 +268,19 @@ const TeacherRegister = () => {
           window.location.href = "/teacher-login";
         }, 2500);
       })
-      .catch(() => {
+      .catch((error) => {
         setTeacherData({ ...teacherData, status: "error" });
+        const errData = error.response?.data;
+        const msg = errData?.email?.[0] || errData?.msg || "Please fill all fields correctly.";
+        Swal.fire({
+          title: msg,
+          icon: "error",
+          toast: true,
+          timer: 2500,
+          position: "top-right",
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
       });
   };
 

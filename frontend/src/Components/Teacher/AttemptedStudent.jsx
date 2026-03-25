@@ -15,15 +15,20 @@ const AttemptedStudent = () => {
 
   const [studentData, setStudentData] = useState([]);
   const { quiz_id } = useParams();
+  const teacherId = localStorage.getItem("teacherId");
 
   useEffect(() => {
+    if (!quiz_id || !teacherId) return;
+
     axios
-      .get(`${baseUrl}/attempted-quiz/${quiz_id}`)
+      .get(`${baseUrl}/attempted-quiz/${quiz_id}`, {
+        params: { teacher_id: teacherId }
+      })
       .then((res) => {
         setStudentData(res.data);
       })
       .catch((error) => console.log(error));
-  }, [quiz_id]);
+  }, [quiz_id, teacherId]);
 
   return (
     <div className="container mt-4 teacher-page">
