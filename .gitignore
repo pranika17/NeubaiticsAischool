@@ -1,19 +1,10 @@
-# Python
-venv/
-__pycache__/
+backend/.env
+backend/venv/
+backend/staticfiles/
+backend/media/
+backend/local_test.sqlite3
+frontend/frontend/node_modules/
+frontend/frontend/build/
 *.pyc
-
-# Node
-node_modules/
-
-# Media files
-*.mp4
-*.zip
-*.tar
-
-# Env
+__pycache__/
 .env
-
-# Build
-build/
-dist/
