@@ -34,9 +34,13 @@ RAZORPAY_KEY_SECRET=<your Razorpay secret>
 EMAIL_HOST_USER=<your email>
 EMAIL_HOST_PASSWORD=<your email app password>
 DEFAULT_FROM_EMAIL=<your email>
+DJANGO_SUPERUSER_USERNAME=<admin username>
+DJANGO_SUPERUSER_EMAIL=<admin email>
+DJANGO_SUPERUSER_PASSWORD=<admin password>
 ```
 
 Render will install Python packages, collect static files, and run migrations from `backend/build.sh`.
+If the `DJANGO_SUPERUSER_*` variables are set, the build also creates or updates that Django admin user in the live database.
 
 ## 2. PostgreSQL
 
@@ -78,7 +82,17 @@ Then redeploy the Render service.
 
 ## 4. After Deployment
 
-Run these once from the Render shell if you need an admin account:
+The live Render database is separate from your local SQLite/MySQL database. A local admin account will not work live unless you create the same account in production.
+
+Preferred: set these Render environment variables and redeploy:
+
+```text
+DJANGO_SUPERUSER_USERNAME=<admin username>
+DJANGO_SUPERUSER_EMAIL=<admin email>
+DJANGO_SUPERUSER_PASSWORD=<admin password>
+```
+
+Alternative: run this once from the Render shell if you need an admin account manually:
 
 ```bash
 cd backend
