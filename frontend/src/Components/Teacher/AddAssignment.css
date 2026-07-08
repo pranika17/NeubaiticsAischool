@@ -1,0 +1,73 @@
+.teacher-card{
+  padding-bottom: 50px;
+  margin-right: 40px;
+}
+
+/* assignmentglass Card */
+.assignmentglass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  border: 1px solid rgba(0,255,255,0.5);
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.assignmentglass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 40px rgba(0,255,255,0.65);
+}
+
+.assignmentglass-card-title {
+  color: #00ffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-shadow: 0 0 8px rgba(0,255,255,0.4);
+}
+
+.assignmentglass-subtitle {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+
+.assignmentglass-card-body .form-label {
+  color: #e0ffff;
+  font-weight: 500;
+}
+
+/* Inputs */
+.assignmentglass-input {
+  background: rgba(255,255,255,0.05) !important;
+  color: #00ffff !important;
+  border: 1px solid rgba(0,255,255,0.3) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.assignmentglass-input:focus {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 8px rgba(0,255,255,0.45) !important;
+  background: rgba(255,255,255,0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Button */
+.btn.assignmentglass-btn {
+  background: rgba(0,255,255,0.2);
+  border: 1px solid rgba(0,255,255,0.55);
+  color: #00ffff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn.assignmentglass-btn:hover {
+  background: rgba(0,255,255,0.35);
+  box-shadow: 0 0 12px rgba(0,255,255,0.65);
+  transform: scale(1.03);
+}

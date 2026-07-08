@@ -1,0 +1,109 @@
+.student-feedback-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 8px 0 24px;
+}
+
+.student-feedback-header {
+  margin-bottom: 20px;
+}
+
+.student-feedback-header h4 {
+  margin: 0 0 8px;
+  color: #00ffff;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 800;
+}
+
+.student-feedback-header p {
+  margin: 0;
+  color: rgba(226, 251, 255, 0.88);
+  max-width: 760px;
+}
+
+.student-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+.student-feedback-card {
+  background: linear-gradient(160deg, rgba(5, 20, 25, 0.84), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(0, 255, 255, 0.28);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 255, 255, 0.12);
+}
+
+.student-feedback-card-head {
+  margin-bottom: 14px;
+}
+
+.student-feedback-card-head h5 {
+  margin: 0 0 4px;
+  color: #f5ffff;
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+
+.student-feedback-card-head span {
+  color: rgba(186, 246, 255, 0.74);
+  font-size: 0.9rem;
+}
+
+.student-feedback-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #bffcff;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.student-feedback-select,
+.student-feedback-textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f7ffff;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  outline: none;
+}
+
+.student-feedback-textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.student-feedback-save {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #00d7d7, #3ef0ff);
+  color: #03212a;
+  font-weight: 800;
+}
+
+.student-feedback-save:disabled {
+  opacity: 0.7;
+}
+
+.student-feedback-empty {
+  border-radius: 18px;
+  border: 1px solid rgba(0, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e7fdff;
+  padding: 18px;
+}
+
+@media (max-width: 576px) {
+  .student-feedback-page {
+    padding-bottom: 18px;
+  }
+
+  .student-feedback-card {
+    padding: 16px;
+  }
+}

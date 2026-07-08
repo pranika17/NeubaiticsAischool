@@ -1,0 +1,92 @@
+/* AddStudyMaterial.css */
+
+.asm-page {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.asm-section {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.teacher-card {
+  padding-bottom: 24px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.g-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35);
+  color: #ffffff;
+  transition: 0.3s;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.g-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.65);
+}
+
+.g-card-title {
+  color: #00ffff;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-shadow: 0 0 8px #0a0975;
+}
+
+.g-card-body .form-label {
+  color: #e0ffff;
+  font-weight: 500;
+}
+
+.g-card-body .form-control {
+  background: rgba(255, 255, 255, 0.05);
+  color: #00ffff;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.g-card-body .form-control:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.btn.g-btn {
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  color: #00ffff;
+  border-radius: 10px;
+  padding: 8px 16px;
+  transition: 0.3s;
+}
+
+.btn.g-btn:hover {
+  background: rgba(0, 255, 255, 0.35);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .g-card {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .g-card-title {
+    font-size: 19px;
+  }
+
+  .btn.g-btn {
+    width: 100%;
+  }
+}

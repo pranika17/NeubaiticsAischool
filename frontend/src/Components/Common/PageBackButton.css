@@ -1,0 +1,27 @@
+.page-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #e9fdff;
+  border-radius: 10px;
+  width: 52px;
+  height: 42px;
+  padding: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: none;
+  transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.page-back-btn:hover {
+  transform: translateY(-1px);
+  color: #a8f9ff;
+  text-shadow: 0 0 12px rgba(0, 238, 255, 0.4);
+}
+
+.page-back-btn i {
+  font-size: 22px;
+  line-height: 1;
+}

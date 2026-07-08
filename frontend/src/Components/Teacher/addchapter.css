@@ -1,0 +1,100 @@
+/* page spacing like other teacher forms */
+.teacher-card {
+  padding-bottom: 50px;
+  margin-right: 40px;
+}
+
+/* chapterglass Card Style */
+.chapterglass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35);
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.chapterglass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.65);
+}
+
+.chapterglass-card-title {
+  color: #00ffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+.chapterglass-subtitle {
+  color: rgba(12, 232, 228, 0.973);
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.chapterglass-card-body .form-label {
+  color: #e0ffff;
+  font-weight: 500;
+}
+
+.chapter-video-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chapter-source-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #dfffff;
+}
+
+.chapter-source-option input {
+  accent-color: #00ffff;
+}
+
+/* Input fields */
+.chapterglass-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #00ffff !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.chapterglass-input:focus {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Upload button */
+.btn.chapterglass-btn {
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.55);
+  color: #00ffff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn.chapterglass-btn:hover {
+  background: rgba(0, 255, 255, 0.35);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.65);
+  transform: scale(1.03);
+}
+
+.btn.chapterglass-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

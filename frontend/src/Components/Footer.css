@@ -1,0 +1,152 @@
+.main-footer {
+  background: linear-gradient(135deg, #03193f, #052c6f);
+  color: #ffffff;
+  padding-top: 60px;
+  position: relative;
+}
+
+.footer-content {
+  padding-bottom: 40px;
+}
+
+.footer-title {
+  color: #ffffff;   /* FIX */
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+
+.footer-text {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 10px;
+  color: #d9e4ff;
+}
+
+.footer-icon {
+  margin-right: 8px;
+  color: #00d4ff;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px; 
+}
+
+.link-icon {
+  font-size: 12px;
+  color: #00d4ff;
+  transition: transform 0.3s ease;
+}
+
+
+.footer-links a {
+  text-decoration: none;
+  color: #d9e4ff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #00d4ff;
+  padding-left: 4px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.social-icons svg {
+  font-size: 20px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.social-icons svg:hover {
+  color: #00d4ff;
+  transform: translateY(-3px);
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.newsletter-form input {
+  background: transparent;
+  border: 1px solid #00d4ff;
+  color: #ffffff;
+}
+
+.newsletter-form input::placeholder {
+  color: #b9d6ff;
+}
+
+.newsletter-form button {
+  background: #00d4ff;
+  border: none;
+  font-weight: 600;
+  padding: 0 20px;
+}
+
+.footer-bottom {
+  background: #00c9e8;
+  padding: 15px 0;
+  color: #001f3f;
+}
+
+.bottom-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+/* BACKGROUND ICON LAYER */
+.footer-bg-icons {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-icon {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(0, 212, 255, 0.15);
+  transform: rotate(45deg);
+}
+
+/* Individual placement */
+.icon-1 {
+  top: 15%;
+  left: 10%;
+}
+
+.icon-2 {
+  top: 40%;
+  right: 15%;
+  width: 160px;
+  height: 160px;
+}
+
+.icon-3 {
+  bottom: 20%;
+  left: 45%;
+  width: 100px;
+  height: 100px;
+}
+

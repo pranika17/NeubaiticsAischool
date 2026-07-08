@@ -1,0 +1,65 @@
+/* ========================= */
+/* QUIZ SECTION HEADING */
+/* ========================= */
+
+.quiz-heading {
+  color: #00ffff;
+  font-weight: 800;
+  font-size: 34px;
+  margin-bottom: 20px;
+  
+}
+
+/* ========================= */
+/* QUIZ CARD */
+/* ========================= */
+
+.quiz-card {
+  background: linear-gradient(145deg, #0b1c2d, #081421);
+  border-radius: 18px;
+  margin-bottom: 28px; 
+  padding: 18px;
+  
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.2);
+  transition: 0.25s ease;
+  text-align: center;
+}
+
+.quiz-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 28px rgba(0, 255, 255, 0.45);
+}
+
+/* ========================= */
+/* QUIZ TITLE */
+/* ========================= */
+
+.quiz-title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+/* ========================= */
+/* START QUIZ BUTTON */
+/* ========================= */
+
+.quiz-btn {
+  background: linear-gradient(135deg, #00e5ff, #00ffa2);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+  color: #001a1f !important;
+  text-decoration: none;
+
+  box-shadow: 0 0 14px rgba(0, 255, 255, 0.5);
+  transition: all 0.25s ease;
+}
+
+.quiz-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 22px rgba(0, 255, 255, 0.8);
+}

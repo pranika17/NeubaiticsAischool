@@ -1,0 +1,127 @@
+.quizresult-page {
+  min-height: calc(100vh - 120px);
+}
+
+.result-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 10px;
+}
+
+.result-wrapper h3 {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.score-text {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.score-text span {
+  color: #2edf8a;
+  font-size: 28px;
+}
+
+.pass-glow {
+  margin-top: 8px;
+  color: #e0e0e0;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px rgba(224, 224, 224, 0.6), 0 0 12px rgba(224, 224, 224, 0.4);
+}
+
+.fail-glow {
+  margin-top: 8px;
+  color: #ff8a80;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px rgba(255, 82, 82, 0.7), 0 0 12px rgba(255, 82, 82, 0.5);
+}
+
+.qr-glass-card {
+  height: 100%;
+  padding: 22px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.qr-chart-card,
+.qr-table-card {
+  min-height: 380px;
+}
+
+.table-glass {
+  margin-bottom: 0;
+}
+
+.table-glass td {
+  background: transparent !important;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 12px 14px;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.table-dark {
+  --bs-table-bg: transparent;
+}
+
+.qr-glass-btn {
+  background: linear-gradient(135deg, #00e676, #00bfa5);
+  color: #000;
+  padding: 12px 32px;
+  border-radius: 30px;
+  border: none;
+  font-weight: bold;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.qr-glass-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 18px #00e676;
+}
+
+@media (max-width: 992px) {
+  .result-wrapper {
+    padding: 12px 4px;
+  }
+
+  .qr-chart-card,
+  .qr-table-card {
+    min-height: auto;
+  }
+
+  .score-text span {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .qr-glass-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .result-wrapper h3 {
+    font-size: 1.4rem;
+  }
+
+  .table-glass td {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .qr-glass-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}

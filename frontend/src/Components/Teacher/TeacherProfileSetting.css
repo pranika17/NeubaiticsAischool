@@ -1,0 +1,11 @@
+.teacher-profile-settings-page .card {
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 992px) {
+    .teacher-profile-settings-page .card {
+        padding: 10px;
+    }
+}

@@ -1,0 +1,103 @@
+/* =========================
+   Main Card Styling
+========================= */
+.card {
+  background: rgba(6, 54, 69, 0.65);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35);
+  color: #ffffff;
+  transition: 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.55);
+}
+
+/* =========================
+   Card Header
+========================= */
+.card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.35);
+  color: #00ffff;
+  font-size: 22px;
+  font-weight: 600;
+  padding: 18px 22px;
+}
+
+/* =========================
+   Labels
+========================= */
+.form-label {
+  color: #00ffff;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* =========================
+   Inputs / Select / Textarea
+========================= */
+.form-control {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(0, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: 0.25s ease;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.form-control:focus {
+  outline: none !important;
+  border-color: #00ffff !important;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.75) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* =========================
+   Image Preview
+========================= */
+.card-body img {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.35);
+}
+
+/* =========================
+   Submit Button (Override Bootstrap)
+========================= */
+.btn-primary {
+  margin-top: 10px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  background: #00ffff !important;
+  color: #000 !important;
+  transition: 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: #00e5ff !important;
+  transform: scale(1.06);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.9),
+              0 0 30px rgba(0, 255, 255, 0.6);
+}
+
+/* =========================
+   Sidebar spacing safety
+========================= */
+/* .container {
+  padding-bottom: 40px;
+}
+textarea.form-control {
+  resize: vertical;
+  overflow-y: auto;
+} */

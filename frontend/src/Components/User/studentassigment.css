@@ -1,0 +1,15 @@
+.assignment-card {
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.assignment-card:hover {
+  transform: translateY(-3px);
+}
+
+.upload-section {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+

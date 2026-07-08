@@ -1,0 +1,111 @@
+/* Glass card like AllQuiz */
+.glass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  border: 1px solid rgba(0,255,255,0.5);
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.teacher-card{
+    padding-bottom: 50px;
+    margin-right: 40px;
+}
+
+
+.glass-card:hover {
+  border: 1px solid rgba(0, 255, 255, 0.8);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Title like dashboard */
+.glass-card h3 {
+  color: cyan;
+  margin-top: 0 !important;
+  margin-bottom: 15px;
+  border-bottom: 1.5px solid rgba(0, 255, 255, 0.4);
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+
+.glass-card-body .form-label {
+  color: #e0ffff;
+  font-weight: 500;
+}
+
+/* Input box glow */
+.glass-card .form-control {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,255,255,0.4);
+  color: cyan;
+}
+
+.glass-card .form-control:focus {
+  border: 1.5px solid cyan;
+  box-shadow: 0 0 8px cyan;
+  background: rgba(0,0,0,0.6);
+  color: white;
+}
+
+/* Submit button match style */
+.btn-primary {
+  background: cyan !important;
+  color: black !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: black !important;
+  color: cyan !important;
+  box-shadow: 0 0 12px cyan;
+}
+
+
+/* ✅ FIX: Select dropdown visible in glass theme */
+.glass-card select.form-control {
+  background: rgba(0,0,0,0.4) !important;
+  border: 1px solid rgba(0,255,255,0.4) !important;
+  color: cyan !important;
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* ✅ FIX: Option background and text */
+.glass-card select.form-control option {
+  background: #ffffff !important;   /* white dropdown list */
+  color: #000000 !important;        /* black text */
+}
+
+/* ✅ Focus effect for dropdown */
+.glass-card select.form-control:focus {
+  border: 1.5px solid cyan !important;
+  box-shadow: 0 0 8px cyan !important;
+}
+.glass-card select.form-control option:hover {
+  background: #00c9e8 !important;   /* cyan hover */
+  color: #ffffff !important;        /* white text on hover */
+}
+
+
+
+.teacher-page {
+  margin-left: 120px;
+}
+
+.glass-card {
+  margin-top: 40px;
+}
+
+
+
+@media (max-width: 768px) {
+  .teacher-page {
+    margin-left: 60px;
+    padding: 0 15px;
+  }
+}
