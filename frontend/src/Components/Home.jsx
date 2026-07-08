@@ -7,7 +7,7 @@ import Stars from './Stars'
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 import './Header.css'
-import wave from './darkside4.mp4'
+import heroImage from '../assets/imageofai.webp'
 import './main.css'
 import ab from './about2.png'
 import about from './about1.webp'
@@ -159,7 +159,7 @@ try{
     <>
       {/* Start Background video player*/}
     <section class="showcase">
-    <video src={wave} autoPlay muted loop />
+    <img src={heroImage} className="showcase-media" alt="NeubAitics AI learning" />
     {/* <div class="overlay"></div> */}
     <div class="text video-text-glow">
       {/* <h1 className='head glow-text'>Never stop learning.<br/> Never stop growing.</h1>  */}
