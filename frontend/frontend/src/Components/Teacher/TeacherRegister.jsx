@@ -170,6 +170,31 @@ import { baseUrl } from "../../config";
 const registerUrl = `${baseUrl}/teacher/`;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const getApiErrorMessage = (error) => {
+  const errData = error.response?.data;
+
+  if (!errData) {
+    return "Could not connect to server. Please check backend CORS/settings.";
+  }
+
+  if (typeof errData === "string") {
+    return errData;
+  }
+
+  if (errData.msg) {
+    return errData.msg;
+  }
+
+  const firstFieldError = Object.entries(errData).find(([, value]) => value);
+  if (!firstFieldError) {
+    return "Registration failed. Please check the form.";
+  }
+
+  const [field, value] = firstFieldError;
+  const message = Array.isArray(value) ? value[0] : value;
+  return `${field.replaceAll("_", " ")}: ${message}`;
+};
+
 const TeacherRegister = () => {
   useEffect(() => {
     document.title = "LMS | Teacher Register";
@@ -269,8 +294,7 @@ const TeacherRegister = () => {
       })
       .catch((error) => {
         setTeacherData({ ...teacherData, status: "error" });
-        const errData = error.response?.data;
-        const msg = errData?.email?.[0] || errData?.msg || "Please fill all fields correctly.";
+        const msg = getApiErrorMessage(error);
         Swal.fire({
           title: msg,
           icon: "error",
