@@ -170,8 +170,9 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import ProfileImageUpload from "./ProfileImageUpload";
+import { baseUrl } from "../../config";
 
-const baseUrl = "http://127.0.0.1:8000/api/teacher/";
+const registerUrl = `${baseUrl}/teacher/`;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TeacherRegister = () => {
@@ -237,7 +238,7 @@ const TeacherRegister = () => {
     }
 
     axios
-      .post(baseUrl, formData, {
+      .post(registerUrl, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response) => {
