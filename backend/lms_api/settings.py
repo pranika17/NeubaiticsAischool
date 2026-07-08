@@ -158,6 +158,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://neubaitics-aischool-a62l-iota.vercel.app",
 ]
 
 def split_env_urls(value):
