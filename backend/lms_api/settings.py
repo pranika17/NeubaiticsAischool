@@ -160,17 +160,23 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-frontend_base_url = os.getenv("FRONTEND_BASE_URL", "").strip()
-if frontend_base_url and frontend_base_url not in CORS_ALLOWED_ORIGINS:
-    CORS_ALLOWED_ORIGINS.append(frontend_base_url)
+def split_env_urls(value):
+    return [url.strip().rstrip("/") for url in value.split(",") if url.strip()]
+
+
+frontend_base_urls = split_env_urls(os.getenv("FRONTEND_BASE_URL", ""))
+extra_cors_origins = split_env_urls(os.getenv("CORS_ALLOWED_ORIGINS", ""))
+
+for origin in frontend_base_urls + extra_cors_origins:
+    if origin and origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(origin)
 
 CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin.strip()
+    origin for origin in split_env_urls(os.getenv("CSRF_TRUSTED_ORIGINS", ""))
 ]
-if frontend_base_url and frontend_base_url not in CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS.append(frontend_base_url)
+for origin in frontend_base_urls:
+    if origin and origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 PRODUCTION_COOKIES = not DEBUG and bool(DATABASE_URL)
@@ -201,7 +207,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() == "true"
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "no-reply@neubaitics.local")
-FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
+FRONTEND_BASE_URL = frontend_base_urls[0] if frontend_base_urls else "http://localhost:3000"
 
 # ✅ FIX 7: Razorpay keys from .env
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
