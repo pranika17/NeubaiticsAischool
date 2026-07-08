@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./HomeMenuButton.css";
+import { adminUrl } from "../../config";
 
 const HomeMenuButton = () => {
   const [open, setOpen] = useState(false);
@@ -50,7 +51,7 @@ const HomeMenuButton = () => {
           )}
 
           <a
-            href="http://127.0.0.1:8000/admin/login/?next=/admin/"
+            href={adminUrl}
             target="_blank"
             rel="noreferrer"
             onClick={() => setOpen(false)}

@@ -125,6 +125,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { adminUrl } from "../config";
 
 const Header = () => {
   const teacherLoginStatus = localStorage.getItem("teacherLoginStatus");
@@ -244,7 +245,7 @@ const Header = () => {
             <a
               className="nav-link nav-item"
               target="__blank"
-              href="http://127.0.0.1:8000/admin/login/?next=/admin/"
+              href={adminUrl}
               onClick={closeNavbar}
             >
               Admin

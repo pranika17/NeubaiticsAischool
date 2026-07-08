@@ -5,7 +5,7 @@ const configuredAdminUrl = process.env.REACT_APP_ADMIN_URL;
 const defaultSiteUrl =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://127.0.0.1:8000"
-    : window.location.origin;
+    : "https://neubaitics-lms-api.onrender.com";
 
 const normalizedSiteUrl = (configuredSiteUrl || defaultSiteUrl).replace(/\/+$/, "");
 const normalizedApiBase = (configuredApiBaseUrl || normalizedSiteUrl).replace(/\/+$/, "");
