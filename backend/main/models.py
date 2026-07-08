@@ -1,0 +1,772 @@
+from django.db import models
+from django.utils import timezone
+from django.core import serializers
+from django.core.exceptions import ValidationError
+
+
+def _assign_public_code(instance, field_name, prefix):
+    if getattr(instance, field_name, None) or not instance.pk:
+        return
+
+    setattr(instance, field_name, f"{prefix}{instance.pk:5d}".replace(" ", "0"))
+    type(instance).objects.filter(pk=instance.pk).update(**{field_name: getattr(instance, field_name)})
+
+# models.py
+from django.db import models
+
+
+
+
+
+
+class Teacher(models.Model):
+    teacher_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    full_name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, unique=True)
+    password = models.CharField(max_length=100)
+    qualification = models.CharField(max_length=500, blank=True, null=True)
+    mobile_no = models.CharField(max_length=20)
+    skills = models.CharField(max_length=200, null=True, blank=True)
+    image = models.ImageField(upload_to='teacher_images/', blank=True, null=True)
+    
+    # NEW FIELD
+    is_approved = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = "Teachers"
+
+    def __str__(self):
+        return self.full_name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        _assign_public_code(self, "teacher_code", "TCH")
+
+
+
+    
+
+    class Meta:
+        verbose_name_plural="1. Teacher"
+
+    def skill_list(self):
+        skill_list=self.skills.split(',')
+        return skill_list
+
+    def total_teacher_course(self):
+        total_course=Course.objects.filter(teacher=self).count()
+        return total_course
+
+    def total_teacher_chapters(self):
+        total_chapters=Chapter.objects.filter(course__teacher=self).count()
+        return total_chapters
+
+    def total_teacher_students(self):
+        total_students=StudentCourseEnrollment.objects.filter(course__teacher=self).count()
+        return total_students 
+    
+
+
+
+
+class CourseCategory(models.Model):
+    title=models.CharField(max_length=100)
+    description=models.TextField()
+
+    class Meta:
+        verbose_name_plural="2. Course Categories"
+
+    def total_courses(self):
+        return Course.objects.filter(category=self).count()
+
+    def __str__(self) :
+        return self.title
+    
+
+
+
+
+
+class Course(models.Model):
+    category=models.ForeignKey(CourseCategory,on_delete=models.CASCADE, related_name='category_courses')
+    teacher=models.ForeignKey(Teacher,on_delete=models.CASCADE, related_name='teacher_courses')
+    title=models.CharField(max_length=150)
+    description=models.TextField()
+    featured_img=models.ImageField(upload_to='course_imgs/',null=True)
+    techs=models.TextField(null=True)
+    course_views=models.BigIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural="3. Courses"
+
+    def related_videos(self):
+        related_videos=Course.objects.filter(techs__icontains=self.techs).exclude(id=self.id)
+        return serializers.serialize('json',related_videos)
+
+    def teach_list(self):
+        teach_list=self.techs.split(',')
+        return teach_list
+
+    def total_enrolled_students(self):
+        total_enrolled_students=StudentCourseEnrollment.objects.filter(course=self).count()
+        return total_enrolled_students
+
+    def course_rating(self):
+        course_rating=CourseRating.objects.filter(course=self).aggregate(avg_rating=models.Avg('rating'))
+        return course_rating['avg_rating']
+    
+    def __str__(self) :
+        return self.title
+    
+
+
+
+    
+
+    
+class Chapter(models.Model):
+    course=models.ForeignKey(Course,null=True,on_delete=models.CASCADE,related_name='course_chapters')
+    title=models.CharField(max_length=150,null=True)
+    description=models.TextField()
+    video = models.FileField(upload_to='chapter_videos/', null=True, max_length=200)
+    video_url = models.URLField(null=True, blank=True)
+
+    remarks=models.TextField(null=True)
+
+    class Meta:
+        verbose_name_plural="4. Chapters"
+
+
+
+
+
+
+
+from django.db import models
+from django.contrib.auth.hashers import make_password
+
+class Student(models.Model):
+    student_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    fullname = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=255)
+    interseted_categories = models.TextField()
+    image = models.ImageField(upload_to='student_images/', null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def save(self, *args, **kwargs):
+        # Hash password only if it's not already hashed
+        if not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
+        _assign_public_code(self, "student_code", "STD")
+
+    def __str__(self):
+        return self.fullname
+
+
+
+    def enrolled_courses(self):
+        enrolled_courses=StudentCourseEnrollment.objects.filter(student=self).count()
+        return enrolled_courses
+
+    def favorite_courses(self):
+        favorite_courses=StudentFavoriteCourse.objects.filter(student=self).count()
+        return favorite_courses
+
+    def complete_assignments(self):
+        complete_assignments=StudentAssignment.objects.filter(student=self,student_status=True).count()
+        return complete_assignments
+
+    def pending_assignments(self):
+        pending_assignments=StudentAssignment.objects.filter(student=self,student_status=False).count()
+        return pending_assignments
+    
+    def message_count(self):
+        return TeacherStudentChat.objects.filter(student=self).count()
+
+    class Meta:
+        verbose_name_plural="5. Students"
+
+
+
+
+class StudentCourseEnrollment(models.Model):
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+
+    course = models.ForeignKey(Course, null=True, on_delete=models.CASCADE, related_name='enrolled_courses')
+    student = models.ForeignKey(Student, null=True, on_delete=models.CASCADE, related_name='enrolled_student')
+
+    enrolled_time = models.DateTimeField(auto_now_add=True)
+
+    # 🔥 Payment System
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_proof = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
+
+    # Certificate
+    certificate_approved = models.BooleanField(default=False)
+    certificate_approved_at = models.DateTimeField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('course', 'student')
+
+
+class CourseRating(models.Model):
+    course=models.ForeignKey(Course,on_delete=models.CASCADE,null=True)
+    student=models.ForeignKey(Student,on_delete=models.CASCADE,null=True)
+    rating=models.PositiveBigIntegerField(default=0)
+    reviews=models.TextField(null=True)
+    review_time=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+         verbose_name_plural="7. Course Ratings"
+
+    def __str__(self):
+        return f"{self.course}-{self.student}-{self.rating}"
+
+from django.db import models
+
+class StudentFavoriteCourse(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    status = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = "8. Student Favorite Course"
+        constraints = [
+            models.UniqueConstraint(fields=["course", "student"], name="unique_favorite_course")
+        ]
+
+
+# class StudentAssignment(models.Model):
+#     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+#     title=models.CharField(max_length=150)
+#     detail=models.TextField(null=True)    
+#     student_status = models.BooleanField(default=False)
+
+#     add_time=models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#          verbose_name_plural="9. STudent Assignment"
+
+#     def __str__(self):
+#         return f"{self.title}" 
+
+
+
+from django.db import models
+
+class StudentAssignment(models.Model):
+    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+
+    title = models.CharField(max_length=150)
+    detail = models.TextField(null=True, blank=True)
+
+    # Student submission fields
+    answer_text = models.TextField(null=True, blank=True)
+    upload_file = models.FileField(upload_to="assignment_files/", null=True, blank=True)
+    upload_image = models.ImageField(upload_to="assignment_images/", null=True, blank=True)
+
+    # status
+    student_status = models.BooleanField(default=False)  # Pending/Submitted
+    add_time = models.DateTimeField(auto_now_add=True)
+    submitted_time = models.DateTimeField(null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+
+
+    class Meta:
+        verbose_name_plural = "Student Assignments"
+
+    def __str__(self):
+        return self.title
+
+        
+class Quiz(models.Model):   
+    teacher=models.ForeignKey(Teacher,on_delete=models.CASCADE)
+    title=models.CharField(max_length=200,null=True)
+    detail=models.TextField()
+    add_time=models.DateTimeField(auto_now_add=True)
+
+    def assign_status(self):
+        return CourseQuiz.objects.filter(quiz=self).count()
+
+    class Meta:
+         verbose_name_plural="11. Quizs"
+
+class QuizQuestions(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True)
+
+    question_type = models.CharField(
+        max_length=20,
+        choices=[
+            ("mcq", "MCQ"),
+            ("coding", "Coding"),
+        ],
+        default="mcq"
+    )
+
+    questions = models.TextField()  # change from CharField to TextField
+
+    # MCQ Fields
+    ans1 = models.CharField(max_length=300, blank=True, null=True)
+    ans2 = models.CharField(max_length=300, blank=True, null=True)
+    ans3 = models.CharField(max_length=300, blank=True, null=True)
+    ans4 = models.CharField(max_length=300, blank=True, null=True)
+    right_ans = models.CharField(max_length=300, blank=True, null=True)
+
+    # Coding Fields
+    coding_starter_code = models.TextField(blank=True, null=True)
+    coding_solution = models.TextField(blank=True, null=True)
+
+    add_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "12. Quiz Questions"
+
+class CourseQuiz(models.Model):
+    teacher=models.ForeignKey(Teacher,on_delete=models.CASCADE,null=True)
+    course=models.ForeignKey(Course,on_delete=models.CASCADE,null=True)
+    quiz=models.ForeignKey(Quiz,on_delete=models.CASCADE,null=True)
+    add_time=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+         verbose_name_plural="13. Course Quiz "
+
+
+
+class AttemptQuiz(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True)
+    question = models.ForeignKey(QuizQuestions, on_delete=models.CASCADE, null=True)
+    selected_answer = models.CharField(max_length=200, null=True)
+    is_correct = models.BooleanField(default=False)
+    add_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "14. Attempted Questions"
+        unique_together = ('student', 'quiz', 'question')   # 👈 FIXED!!
+
+
+
+class StudyMaterial(models.Model):
+    course=models.ForeignKey(Course,on_delete=models.CASCADE)
+    title=models.CharField(max_length=150)
+    description=models.TextField()
+    upload=models.FileField(upload_to='study_materials/',null=True)
+    remarks=models.TextField(null=True)
+
+    class Meta:
+         verbose_name_plural="15. Course Materials"
+
+class Faq(models.Model):
+    question=models.CharField(max_length=300)
+    answer=models.TextField()
+
+    class Meta:
+         verbose_name_plural="16. FAQ "
+
+
+
+class TeacherStudentChat(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)
+
+
+    message = models.TextField()
+    sender = models.CharField(
+        max_length=10,
+        choices=(('teacher', 'Teacher'), ('student', 'Student')),
+        default="teacher" 
+    )
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    message = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='chat_images/', null=True, blank=True)
+    audio = models.FileField(upload_to='chat_audio/', null=True, blank=True)
+    audio_transcript = models.TextField(null=True, blank=True)
+
+
+    class Meta:
+      ordering = ['timestamp']
+      indexes = [
+        models.Index(fields=['teacher', 'student', 'sender', 'is_read']),
+    ]
+    verbose_name_plural = "Individual Chats"
+
+
+    def __str__(self):
+        return f"{self.teacher} ↔ {self.student}"
+
+
+
+class CourseChatGroup(models.Model):
+    course = models.OneToOneField(Course, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Course Chat Groups"
+
+    def __str__(self):
+        return self.course.title
+
+
+
+
+
+class CourseGroupMessage(models.Model):
+    MESSAGE = "message"
+    INSTRUCTION = "instruction"
+    MEETING = "meeting"
+
+    MESSAGE_TYPE_CHOICES = [
+        (MESSAGE, "Message"),
+        (INSTRUCTION, "Instruction"),
+        (MEETING, "Meeting Link"),
+    ]
+
+    group = models.ForeignKey(CourseChatGroup, on_delete=models.CASCADE)
+
+    sender_type = models.CharField(
+        max_length=10,
+        choices=(('teacher', 'Teacher'), ('student', 'Student'))
+    )
+
+    sender_student = models.ForeignKey(
+        Student, null=True, blank=True, on_delete=models.CASCADE
+    )
+
+    message = models.TextField()
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPE_CHOICES, default=MESSAGE)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    meeting_link = models.URLField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+        verbose_name_plural = "Group Messages"
+
+
+class GroupChatReadState(models.Model):
+    group = models.ForeignKey(CourseChatGroup, on_delete=models.CASCADE, related_name="read_states")
+    teacher = models.ForeignKey(Teacher, null=True, blank=True, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, null=True, blank=True, on_delete=models.CASCADE)
+    last_seen_at = models.DateTimeField(default=timezone.now)
+
+    def clean(self):
+        if bool(self.teacher) == bool(self.student):
+            raise ValidationError("Exactly one of teacher or student must be set.")
+
+        lookup = GroupChatReadState.objects.filter(group=self.group)
+        if self.pk:
+            lookup = lookup.exclude(pk=self.pk)
+
+        if self.teacher and lookup.filter(teacher=self.teacher).exists():
+            raise ValidationError("Read state already exists for this teacher in the group.")
+
+        if self.student and lookup.filter(student=self.student).exists():
+            raise ValidationError("Read state already exists for this student in the group.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Group Chat Read States"
+
+
+
+
+
+class Institution(models.Model):
+    SCHOOL = "school"
+    COLLEGE = "college"
+
+    TYPE_CHOICES = [
+        (SCHOOL, "School"),
+        (COLLEGE, "College"),
+    ]
+
+    name = models.CharField(max_length=200)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                models.functions.Lower('name'),
+                'type',
+                name='unique_institution_name_type'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.type})"
+
+
+
+
+
+
+
+from django.db import models
+
+
+class Workshop(models.Model):
+    WORKSHOP = 'workshop'
+    BOOTCAMP = 'bootcamp'
+
+    TYPE_CHOICES = [
+        (WORKSHOP, 'Workshop'),
+        (BOOTCAMP, 'Bootcamp'),
+    ]
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    date = models.DateField()
+
+    fee = models.DecimalField(max_digits=8, decimal_places=2)
+    max_seats = models.PositiveIntegerField()
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class WorkshopRegistration(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('approved', 'Approved'),
+    ]
+
+    workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15)
+    institution = models.ForeignKey(
+        "Institution",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="students"
+    )
+
+
+
+    # 🔹 Unique Amount System
+    base_amount = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    payable_amount = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+
+   
+
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending'
+    )
+
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.workshop.title}"
+
+
+
+
+class Blog(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    video_upload = models.FileField(upload_to='blog_videos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+        return self.title
+
+
+
+# for cetfication of student chapter progress tracking
+
+
+from django.db import models
+from django.utils.timezone import now
+
+class StudentChapterProgress(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name="chapter_progress")
+    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name="student_progress")
+
+    watched_seconds = models.PositiveIntegerField(default=0)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'chapter')
+        verbose_name_plural = "Student Chapter Progress"
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.chapter.title}"
+
+
+
+
+
+import uuid
+from django.utils.timezone import now
+
+class StudentCertificate(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="certificates")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="certificates")
+
+    certificate_id = models.CharField(max_length=100, unique=True, blank=True)
+    issue_date = models.DateTimeField(default=now)
+
+    pdf_file = models.FileField(upload_to="certificates/", null=True, blank=True)
+
+    status = models.CharField(max_length=20, default="issued")  # issued/revoked
+
+    class Meta:
+        unique_together = ("student", "course")
+        verbose_name_plural = "Student Certificates"
+
+    def save(self, *args, **kwargs):
+        if not self.certificate_id:
+            self.certificate_id = f"NB-{uuid.uuid4().hex[:12].upper()}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.course.title}"
+
+
+class MockInterview(models.Model):
+    INTRO = "intro"
+    TECHNICAL = "technical"
+    CODING = "coding"
+    HR = "hr"
+    FULL = "full"
+    EASY = "easy"
+    MODERATE = "moderate"
+    DIFFICULT = "difficult"
+
+    INTERVIEW_TYPE_CHOICES = [
+        (INTRO, "Self Introduction"),
+        (TECHNICAL, "Technical"),
+        (CODING, "Coding"),
+        (HR, "HR"),
+        (FULL, "Full Interview"),
+    ]
+
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+
+    STATUS_CHOICES = [
+        (NOT_STARTED, "Not Started"),
+        (IN_PROGRESS, "In Progress"),
+        (COMPLETED, "Completed"),
+    ]
+
+    DIFFICULTY_CHOICES = [
+        (EASY, "Easy"),
+        (MODERATE, "Moderate"),
+        (DIFFICULT, "Difficult"),
+    ]
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="mock_interviews")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="mock_interviews")
+    interview_type = models.CharField(max_length=20, choices=INTERVIEW_TYPE_CHOICES, default=FULL)
+    difficulty_level = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default=MODERATE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_STARTED)
+    total_questions = models.PositiveIntegerField(default=0)
+    asked_questions = models.PositiveIntegerField(default=0)
+    overall_score = models.PositiveIntegerField(default=0)
+    score_intro = models.PositiveIntegerField(default=0)
+    score_technical = models.PositiveIntegerField(default=0)
+    score_coding = models.PositiveIntegerField(default=0)
+    score_communication = models.PositiveIntegerField(default=0)
+    strengths = models.TextField(blank=True, null=True)
+    weaknesses = models.TextField(blank=True, null=True)
+    improvement_plan = models.TextField(blank=True, null=True)
+    recommended_topics = models.TextField(blank=True, null=True)
+    ai_summary = models.TextField(blank=True, null=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+        verbose_name_plural = "Mock Interviews"
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.course.title} ({self.interview_type})"
+
+
+class MockInterviewQuestion(models.Model):
+    INTRO = "intro"
+    TECHNICAL = "technical"
+    CODING = "coding"
+    HR = "hr"
+
+    ROUND_CHOICES = [
+        (INTRO, "Self Introduction"),
+        (TECHNICAL, "Technical"),
+        (CODING, "Coding"),
+        (HR, "HR"),
+    ]
+
+    interview = models.ForeignKey(MockInterview, on_delete=models.CASCADE, related_name="questions")
+    round_type = models.CharField(max_length=20, choices=ROUND_CHOICES)
+    question_text = models.TextField()
+    ideal_points = models.TextField(blank=True, null=True)
+    coding_prompt = models.TextField(blank=True, null=True)
+    expected_answer = models.TextField(blank=True, null=True)
+    question_signature = models.CharField(max_length=180, blank=True, null=True, db_index=True)
+    order = models.PositiveIntegerField(default=0)
+    is_answered = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name_plural = "Mock Interview Questions"
+
+    def __str__(self):
+        return f"{self.interview_id} - Q{self.order}"
+
+
+class MockInterviewAnswer(models.Model):
+    interview = models.ForeignKey(MockInterview, on_delete=models.CASCADE, related_name="answers")
+    question = models.ForeignKey(MockInterviewQuestion, on_delete=models.CASCADE, related_name="answers")
+    answer_text = models.TextField(blank=True, null=True)
+    answer_summary = models.TextField(blank=True, null=True)
+    score = models.PositiveIntegerField(default=0)
+    communication_score = models.PositiveIntegerField(default=0)
+    technical_score = models.PositiveIntegerField(default=0)
+    confidence_score = models.PositiveIntegerField(default=0)
+    feedback = models.TextField(blank=True, null=True)
+    improvement_tip = models.TextField(blank=True, null=True)
+    missing_points = models.TextField(blank=True, null=True)
+    sample_answer = models.TextField(blank=True, null=True)
+    suggested_followup = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("interview", "question")
+        ordering = ["question__order", "id"]
+        verbose_name_plural = "Mock Interview Answers"
+
+    def __str__(self):
+        return f"{self.interview_id} - Answer {self.question_id}"

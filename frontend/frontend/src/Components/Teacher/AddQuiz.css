@@ -1,0 +1,87 @@
+.glass-card {
+  background: linear-gradient(180deg, rgba(18, 32, 64, 0.86), rgba(12, 76, 86, 0.64));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(160, 229, 255, 0.16);
+  border-radius: 26px;
+  color: #fff;
+  margin-top: 10px;
+  padding: 30px;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-card::before {
+  background: radial-gradient(circle at top right, rgba(255, 196, 112, 0.16), transparent 28%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card:hover {
+  border-color: rgba(160, 229, 255, 0.28);
+  box-shadow: 0 28px 72px rgba(7, 12, 28, 0.28);
+  transform: translateY(-5px);
+}
+
+.glass-card h3 {
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.1rem;
+}
+
+.glass-card-body .form-label {
+  color: #e5f6ff;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+
+.glass-card .form-control {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(160, 229, 255, 0.16);
+  border-radius: 16px;
+  color: #f5fbff;
+  min-height: 52px;
+  padding: 0.9rem 1rem;
+}
+
+.glass-card textarea.form-control {
+  min-height: 130px;
+}
+
+.glass-card .form-control:focus {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(160, 229, 255, 0.42);
+  box-shadow: 0 0 0 4px rgba(81, 182, 255, 0.14);
+  color: #fff;
+}
+
+.glass-card select.form-control {
+  cursor: pointer;
+}
+
+.glass-card select.form-control option {
+  background: #132338;
+  color: #fff;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ffd093, #ffaf59) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  color: #1f2230 !important;
+  font-weight: 800 !important;
+  padding: 0.9rem 1.35rem !important;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 16px 34px rgba(255, 172, 90, 0.26);
+  transform: translateY(-2px);
+}

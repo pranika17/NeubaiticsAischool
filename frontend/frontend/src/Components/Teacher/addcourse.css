@@ -1,0 +1,105 @@
+.teacher-card {
+  padding-bottom: 42px;
+}
+
+.glass-card {
+  background: linear-gradient(180deg, rgba(8, 33, 56, 0.84), rgba(10, 62, 79, 0.66));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 230, 255, 0.14);
+  border-radius: 26px;
+  color: #fff;
+  overflow: hidden;
+  padding: 30px;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-card::before {
+  background: radial-gradient(circle at top right, rgba(122, 222, 255, 0.2), transparent 28%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card:hover {
+  border-color: rgba(148, 230, 255, 0.28);
+  box-shadow: 0 26px 70px rgba(6, 17, 39, 0.28);
+  transform: translateY(-5px);
+}
+
+.glass-card-title {
+  color: #f6fbff;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.15rem;
+}
+
+.glass-card-title i {
+  color: #87e6ff;
+  margin-right: 0.45rem;
+}
+
+.glass-card-body .form-label {
+  color: #dff3ff;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+
+.glass-card-body .form-control,
+.glass-select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 230, 255, 0.16);
+  border-radius: 16px;
+  color: #effaff;
+  min-height: 52px;
+  padding: 0.9rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.glass-card-body textarea.form-control {
+  min-height: 128px;
+}
+
+.glass-card-body .form-control::placeholder {
+  color: rgba(226, 244, 255, 0.46);
+}
+
+.glass-card-body .form-control:focus,
+.glass-select:focus {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(154, 235, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(80, 192, 255, 0.16);
+  color: #fff;
+}
+
+.glass-select option {
+  background: #10253a;
+  color: #fff;
+}
+
+.btn.glass-btn {
+  background: linear-gradient(135deg, #8ee6ff, #41bfed);
+  border: none;
+  border-radius: 999px;
+  color: #08253a;
+  font-weight: 800;
+  padding: 0.9rem 1.35rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn.glass-btn:hover {
+  box-shadow: 0 16px 34px rgba(56, 190, 236, 0.28);
+  transform: translateY(-2px);
+}
+
+.btn.glass-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}

@@ -1,0 +1,389 @@
+.layout-wrapper {
+  display: flex;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.user-sidebar {
+  backdrop-filter: blur(12px);
+  background: linear-gradient(180deg, rgba(7, 31, 46, 0.96), rgba(7, 66, 83, 0.92));
+  border-right: 1px solid rgba(151, 231, 255, 0.12);
+  height: calc(100vh - 58px);
+  left: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  top: 58px;
+  transition: left 0.3s ease;
+  width: 250px;
+  z-index: 4000;
+}
+
+.user-main-wrapper {
+  background:
+    radial-gradient(circle at top left, rgba(31, 181, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(255, 184, 76, 0.16), transparent 24%),
+    linear-gradient(180deg, #071423 0%, #0b1d30 52%, #09121e 100%);
+  isolation: isolate;
+  margin-left: 250px;
+  min-height: 100dvh;
+  min-width: 0;
+  overflow-x: hidden;
+  position: relative;
+  width: calc(100% - 250px);
+}
+
+.user-main-content {
+  box-sizing: border-box;
+  color: white;
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 90px 20px 40px;
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+.user-main-content > * {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+.user-page-shell {
+  margin: 0 auto;
+  width: min(100%, 1180px);
+}
+
+.user-page-controls {
+  align-items: center;
+  background: linear-gradient(90deg, rgba(6, 18, 39, 0.98) 0%, rgba(9, 41, 89, 0.96) 48%, rgba(8, 114, 158, 0.92) 100%);
+  border-bottom: 1px solid rgba(147, 231, 255, 0.32);
+  box-shadow: 0 18px 45px rgba(0, 24, 56, 0.35);
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  min-height: 58px;
+  padding: 10px 16px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 5200;
+}
+
+.user-controls-left,
+.user-controls-right {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+}
+
+.user-controls-right {
+  margin-left: auto;
+}
+
+.user-controls-center {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+.user-controls-copy {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-role-pill {
+  border: 1px solid rgba(152, 232, 255, 0.42);
+  border-radius: 999px;
+  color: #9ce8ff;
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.18rem;
+  padding: 0.28rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.user-welcome-text {
+  color: #f3fbff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-welcome-subtext {
+  color: rgba(231, 247, 255, 0.75);
+  font-size: 0.78rem;
+  margin-top: 0.05rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-main-content > .container,
+.user-main-content > .container-fluid {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1160px;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+.user-main-content > .container > .row,
+.user-main-content > .container-fluid > .row {
+  justify-content: center;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.user-main-content > .container > .row > [class*="col-"],
+.user-main-content > .container-fluid > .row > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.user-main-content > .container > .row > .col-md-9,
+.user-main-content > .container > .row > .col-lg-9,
+.user-main-content > .container-fluid > .row > .col-md-9,
+.user-main-content > .container-fluid > .row > .col-lg-9 {
+  flex: 0 0 min(100%, 1080px);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(100%, 1080px);
+}
+
+.user-background-layer {
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  filter: blur(8px);
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  transform: scale(1.05);
+  z-index: -2;
+}
+
+.user-overlay-layer {
+  background:
+    linear-gradient(180deg, rgba(4, 9, 18, 0.2) 0%, rgba(4, 9, 18, 0.58) 100%),
+    radial-gradient(circle at bottom right, rgba(0, 204, 255, 0.12), transparent 24%);
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
+}
+
+.workspace-hero {
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(4, 13, 28, 0.22);
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+  margin-bottom: 1.6rem;
+  overflow: hidden;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.workspace-hero::before {
+  content: "";
+  inset: 0;
+  opacity: 0.9;
+  pointer-events: none;
+  position: absolute;
+}
+
+.workspace-hero-student::before {
+  background:
+    radial-gradient(circle at top left, rgba(76, 189, 255, 0.22), transparent 30%),
+    linear-gradient(135deg, rgba(10, 38, 74, 0.82), rgba(7, 87, 116, 0.5));
+}
+
+.workspace-hero-copy,
+.workspace-hero-stats {
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-kicker {
+  color: #9fe5ff;
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  margin-bottom: 0.65rem;
+  text-transform: uppercase;
+}
+
+.workspace-hero-copy h1 {
+  color: #fff;
+  font-size: clamp(1.9rem, 4vw, 3.05rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 0.7rem;
+  max-width: 13ch;
+}
+
+.workspace-hero-copy p {
+  color: rgba(236, 248, 255, 0.84);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 60ch;
+}
+
+.workspace-hero-stats {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.workspace-stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  padding: 1rem 1.05rem;
+}
+
+.workspace-stat-card strong {
+  color: #fff;
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.workspace-stat-card span {
+  color: rgba(230, 244, 255, 0.74);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.user-main-content :where(.glass-card, .chapterglass-card, .assignmentglass-card, .card, .student-assignments-shell) {
+  box-shadow: 0 22px 65px rgba(3, 16, 35, 0.18);
+}
+
+.user-mobile-menu-btn {
+  display: none;
+}
+
+.user-mobile-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  position: fixed;
+  z-index: 3500;
+}
+
+@media (max-width: 992px) {
+  .user-mobile-menu-btn {
+    align-items: center;
+    background: linear-gradient(145deg, rgba(0, 236, 255, 0.94), rgba(0, 182, 225, 0.94));
+    border: 1px solid rgba(0, 255, 255, 0.55);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 220, 255, 0.28);
+    color: #032034;
+    display: inline-flex;
+    font-size: 18px;
+    font-weight: 700;
+    height: 38px;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 38px;
+  }
+
+  .user-mobile-menu-btn:hover {
+    box-shadow: 0 10px 20px rgba(0, 220, 255, 0.36);
+    transform: translateY(-1px);
+  }
+
+  .user-page-controls {
+    border-radius: 0;
+    min-height: 54px;
+    padding: 8px 12px;
+  }
+
+  .user-controls-center {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  .user-controls-left,
+  .user-controls-right {
+    flex-shrink: 0;
+  }
+
+  .user-welcome-text {
+    font-size: 0.92rem;
+  }
+
+  .user-role-pill,
+  .user-welcome-subtext {
+    display: none;
+  }
+
+  .user-sidebar {
+    left: -260px;
+    overflow-y: auto;
+  }
+
+  .user-sidebar.open {
+    left: 0;
+  }
+
+  .user-main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .user-main-content {
+    max-width: 100%;
+    padding: 88px 14px 36px;
+  }
+
+  .user-page-shell,
+  .user-main-content > .container,
+  .user-main-content > .container-fluid {
+    max-width: 100%;
+  }
+
+  .workspace-hero {
+    grid-template-columns: 1fr;
+    padding: 1.15rem;
+  }
+}
+
+@media (min-width: 993px) and (max-width: 1200px) {
+  .user-sidebar {
+    width: 230px;
+  }
+
+  .user-main-wrapper {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+  }
+
+  .footer-wrapper {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+  }
+
+  .user-main-content {
+    padding: 90px 16px 36px;
+  }
+}

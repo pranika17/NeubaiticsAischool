@@ -1,0 +1,28 @@
+.teacher-card {
+  padding-bottom: 42px;
+}
+
+.glass-subtitle {
+  color: rgba(235, 246, 255, 0.72);
+  margin-bottom: 1rem;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(160, 229, 255, 0.16) !important;
+  border-radius: 16px !important;
+  color: #f1fbff !important;
+  min-height: 52px;
+  padding: 0.9rem 1rem !important;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(160, 229, 255, 0.42) !important;
+  box-shadow: 0 0 0 4px rgba(81, 182, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.glass-card textarea.glass-input {
+  min-height: 150px;
+}

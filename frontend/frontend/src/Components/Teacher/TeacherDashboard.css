@@ -1,0 +1,295 @@
+/* Layout */
+.tdashboard-wrapper {
+  
+  
+  min-height: 100vh;
+  /* background: #3bceee; dark background */
+}
+
+.tsidebar {
+  width: 250px;
+}
+
+.tdashboard-main {
+  flex: 1;
+  padding: 35px;
+}
+
+/* Title */
+.tdashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0af6f6;
+  text-shadow: 0 0 8px #0a0975;
+  margin-bottom: 20px;
+}
+
+/* Card Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 20px;
+  box-sizing: 30px;
+}
+
+/* Cards */
+.tglass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  color: #ffffff; 
+  
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  transition: 0.3s;
+}
+
+
+.tglass-card h5{
+    color: #ffffff;
+}
+.tglass-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 40px rgba(0,255,255,0.7);
+}
+
+.text-link {
+  text-decoration: none;
+  color: #00ffff;
+}
+
+/* Students Table */
+.tglass-table {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 28px;
+  border-radius: 18px;
+  margin-top: 30px;
+  border: 1px solid rgba(0,255,255,0.5);
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+}
+
+.table-title i {
+  color: #ffffff !important;
+}
+
+.table-title {
+  color: #ffffff !important;
+}
+
+
+.table-title {
+  color: #00ffff;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+
+.expand-row {
+    color: #ffffff !important;
+
+}
+
+.modern-table thead th {
+  color: #ffffff !important;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(0,255,255,0.4);
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #00ffff;
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(0,255,255,0.3);
+}
+
+.hover-row:hover {
+  background: rgba(0,255,255,0.15);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.expand-row td {
+  background: rgba(0,0,0,0.5);
+  padding: 18px;
+  animation: slideDown 0.3s ease forwards;
+}
+
+.expand-row ul {
+  margin-top: 10px;
+  color: #00ffff;
+}
+
+/* Smooth slide down for expanded row */
+@keyframes slideDown {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* ✅ Expanded Section */
+.td-expand-title {
+  margin-bottom: 12px;
+  color: #00ffff;
+  font-size: 16px;
+}
+
+/* ✅ Course grid */
+.td-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ✅ course card */
+.td-course-card {
+  background: rgba(6, 54, 69, 0.45);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.18);
+}
+
+.td-course-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.td-course-name {
+  color: #ffffff;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.td-course-sub {
+  font-size: 13px;
+  opacity: 0.9;
+  color: #00ffff;
+}
+
+/* ✅ Status row */
+.td-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.td-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.td-badge.ok {
+  background: rgba(0, 230, 118, 0.22);
+  color: #baffdf;
+  border-color: rgba(0, 230, 118, 0.35);
+}
+.td-badge.no {
+  background: rgba(255, 193, 7, 0.16);
+  color: #ffe9a8;
+  border-color: rgba(255, 193, 7, 0.28);
+}
+
+/* ✅ Buttons */
+.td-action {
+  margin-top: 12px;
+}
+
+.td-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  transition: 0.2s;
+}
+
+.td-btn-warning {
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+}
+.td-btn-warning:hover {
+  transform: translateY(-2px);
+}
+
+.td-btn-success {
+  background: rgba(0, 230, 118, 0.85);
+  color: #000;
+}
+
+.td-btn-disabled {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ✅ Circular progress */
+.td-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(#00ffff calc(var(--p) * 1%), rgba(255,255,255,0.15) 0);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.35);
+}
+
+.td-circle-inner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.68);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+
+
+@media (max-width: 992px) {
+
+  .tdashboard-wrapper {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .tdashboard-main {
+    width: 100% !important;
+    padding: 100px 15px 40px 15px !important;
+  }
+
+  .tglass-table {
+    padding: 10px;
+    width:100%;
+  }
+
+}
+
+
+@media (max-width: 992px) {
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;   /* 🔥 center cards */
+  }
+
+  .tglass-card {
+    width: 100%;
+    max-width: 260px;   /* limit width */
+  }
+
+}

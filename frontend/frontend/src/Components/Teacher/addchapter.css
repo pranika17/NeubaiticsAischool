@@ -1,0 +1,110 @@
+.teacher-card {
+  padding-bottom: 42px;
+}
+
+.chapterglass-card {
+  background: linear-gradient(180deg, rgba(12, 38, 64, 0.86), rgba(10, 78, 82, 0.64));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(156, 231, 255, 0.16);
+  border-radius: 26px;
+  box-shadow: 0 24px 70px rgba(7, 12, 28, 0.26);
+  color: #fff;
+  overflow: hidden;
+  padding: 30px;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.chapterglass-card::before {
+  background: radial-gradient(circle at top right, rgba(255, 191, 97, 0.16), transparent 28%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.chapterglass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.chapterglass-card:hover {
+  border-color: rgba(156, 231, 255, 0.26);
+  box-shadow: 0 30px 78px rgba(7, 12, 28, 0.32);
+  transform: translateY(-5px);
+}
+
+.chapterglass-card-title {
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.chapterglass-subtitle {
+  color: rgba(238, 246, 255, 0.72);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.chapterglass-card-body .form-label {
+  color: #e4f7ff;
+  font-weight: 700;
+}
+
+.chapter-video-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chapter-source-option {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(156, 231, 255, 0.14);
+  border-radius: 14px;
+  color: #ebf8ff;
+  display: inline-flex;
+  gap: 8px;
+  padding: 12px 15px;
+}
+
+.chapter-source-option input {
+  accent-color: #00ffff;
+}
+
+.chapterglass-input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(156, 231, 255, 0.16) !important;
+  border-radius: 16px !important;
+  color: #f2fbff !important;
+  padding: 0.9rem 1rem !important;
+}
+
+.chapterglass-input:focus {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(156, 231, 255, 0.42) !important;
+  box-shadow: 0 0 0 4px rgba(81, 182, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.btn.chapterglass-btn {
+  background: linear-gradient(135deg, #8ee6ff, #41bfed);
+  border: none;
+  border-radius: 999px;
+  color: #08253a;
+  font-weight: 800;
+  padding: 0.9rem 1.35rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn.chapterglass-btn:hover {
+  box-shadow: 0 16px 34px rgba(56, 190, 236, 0.28);
+  transform: translateY(-2px);
+}
+
+.btn.chapterglass-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}

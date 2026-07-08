@@ -1,0 +1,73 @@
+/* 🌙 Full background */
+/* .dashboard-page {
+  background: linear-gradient(135deg, #0d132d, #111b40, #152859);
+  min-height: 100vh;
+  color: white;
+} */
+
+/* 🧊 Frosted card */
+.glass-card {
+  background: rgba(6, 54, 69, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  border: 1px solid rgba(0,255,255,0.5);
+  box-shadow: 0 0 25px rgba(0,255,255,0.35);
+  color: #ffffff;
+  transition: 0.3s;
+}
+
+.teacher-card{
+    padding-bottom: 50px;
+    margin-right: 40px;
+}
+
+
+.glass-card:hover {
+  border: 1px solid rgba(0, 255, 255, 0.8);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+.glass-card h3 {
+  color: cyan;
+  margin-top: 0 !important;
+  margin-bottom: 15px;
+  border-bottom: 1.5px solid rgba(0, 255, 255, 0.4);
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+/* ✨ Section title */
+.section-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: cyan;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid cyan;
+  padding-bottom: 6px;
+  width: max-content;
+}
+
+/* 🔵 Cyan button */
+.cyan-btn {
+  display: block;
+  background: transparent;
+  border: 2px solid cyan;
+  padding: 10px;
+  border-radius: 12px;
+  color: cyan;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.25s ease-in-out;
+}
+
+/* 🌈 Hover glow */
+.cyan-btn:hover {
+  background: cyan;
+  color: black;
+  transform: translateY(-3px);
+  box-shadow: 0px 0px 12px cyan;
+}
+
+
+

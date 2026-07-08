@@ -1,0 +1,10 @@
+backend/.env
+backend/venv/
+backend/staticfiles/
+backend/media/
+backend/local_test.sqlite3
+frontend/frontend/node_modules/
+frontend/frontend/build/
+*.pyc
+__pycache__/
+.env

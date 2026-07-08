@@ -1,0 +1,45 @@
+# =========================
+# React
+# =========================
+frontend/node_modules/
+frontend/build/
+node_modules/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Django Backend
+# =========================
+backend/venv/
+backend/__pycache__/
+backend/media/
+backend/*.pyc
+
+# Python
+*.pyc
+__pycache__/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Large files
+*.mp4
+*.zip
+*.dll
+
+# VS Code
+.vscode/
+
+# Unnecessary animation folder
+frontend/public/animations/
+
+# OS files
+.DS_Store

@@ -1,0 +1,120 @@
+.student-profile-settings-page {
+    width: 100%;
+}
+
+.student-profile-settings-page .student-settings-card {
+    background: rgba(6, 54, 69, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 255, 0.45);
+    border-radius: 8px;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.28);
+    color: #ffffff;
+    margin: 18px auto;
+    overflow: hidden;
+    width: min(100%, 900px);
+}
+
+.student-settings-heading {
+    align-items: center;
+    border-bottom: 1.5px solid rgba(0, 255, 255, 0.4);
+    color: cyan;
+    display: flex;
+    gap: 8px;
+    font-size: 1.55rem;
+    font-weight: 600;
+    margin: 24px 24px 0;
+    padding-bottom: 8px;
+}
+
+.student-profile-settings-page .card-body {
+    background: transparent;
+    padding: 24px;
+}
+
+.student-profile-settings-page .col-form-label {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.student-profile-settings-page .form-control {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(0, 255, 255, 0.35);
+    border-radius: 8px;
+    color: #ffffff;
+    min-height: 42px;
+}
+
+.student-profile-settings-page .form-control:focus {
+    background: rgba(0, 0, 0, 0.46);
+    border-color: rgba(0, 255, 255, 0.75);
+    box-shadow: 0 0 0 0.2rem rgba(0, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.student-profile-settings-page .form-control::file-selector-button {
+    background: rgba(0, 255, 255, 0.18);
+    border: 0;
+    color: #ffffff;
+}
+
+.student-profile-settings-page textarea.form-control {
+    min-height: 92px;
+}
+
+.student-settings-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-left: 16.666667%;
+    margin-top: 18px;
+    padding-left: 12px;
+}
+
+.student-settings-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 255, 255, 0.55);
+    border-radius: 8px;
+    color: #00ffff;
+    font-weight: 600;
+    min-height: 42px;
+    min-width: 180px;
+}
+
+.student-settings-btn:hover,
+.student-settings-btn:focus {
+    background: rgba(0, 255, 255, 0.18);
+    border-color: rgba(0, 255, 255, 0.85);
+    color: #ffffff;
+}
+
+.student-password-card {
+    margin-bottom: 32px;
+    margin-top: 22px;
+}
+
+@media (max-width: 992px) {
+    .student-profile-settings-page .student-settings-card {
+        margin: 16px auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .student-settings-actions {
+        margin-left: 0;
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .student-settings-actions {
+        justify-content: stretch;
+    }
+
+    .student-settings-btn {
+        width: 100%;
+    }
+
+    .student-profile-settings-page .card-body {
+        padding: 18px;
+    }
+}
