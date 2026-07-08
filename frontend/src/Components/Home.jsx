@@ -17,6 +17,8 @@ import './Home.css'
 const baseUrl='http://127.0.0.1:8000/api'
 
 const Home = () => {
+  const homeVideoUrl = process.env.REACT_APP_HOME_VIDEO_URL || "/videos/home-background.mp4";
+
   const aboutMediaSlides = [
     {
       title: "School Innovation Labs",
@@ -159,7 +161,9 @@ try{
     <>
       {/* Start Background video player*/}
     <section class="showcase">
-    <img src={heroImage} className="showcase-media" alt="NeubAitics AI learning" />
+    <video className="showcase-media" autoPlay muted loop playsInline poster={heroImage}>
+      <source src={homeVideoUrl} type="video/mp4" />
+    </video>
     {/* <div class="overlay"></div> */}
     <div class="text video-text-glow">
       {/* <h1 className='head glow-text'>Never stop learning.<br/> Never stop growing.</h1>  */}

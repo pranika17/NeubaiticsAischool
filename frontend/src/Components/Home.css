@@ -760,14 +760,20 @@ h1.mb-5 {
   overflow: hidden;
 }
 
-.showcase video {
+.showcase video,
+.showcase-media {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.6;
-  filter: contrast(1.1) saturate(1.2);
+  opacity: 0.72;
+  filter: brightness(0.62) contrast(1.08) saturate(1.12);
+}
+
+.video-text-glow {
+  width: min(920px, 100%);
+  max-width: 920px;
 }
 
 /* DARK GRADIENT OVERLAY */
@@ -786,6 +792,25 @@ h1.mb-5 {
 .video-text-glow {
   position: relative;
   z-index: 2;
+}
+
+.showcase .head {
+  max-width: 100%;
+}
+
+.showcase .headss {
+  margin-top: 18px;
+  font-size: clamp(1.4rem, 3.6vw, 3rem);
+  line-height: 1.15;
+}
+
+.showcase .para {
+  max-width: 620px;
+  font-size: clamp(0.98rem, 1.3vw, 1.18rem);
+}
+
+.tamil-two-line span {
+  white-space: normal;
 }
 
 /* ===== REMOVE SECTION TITLE LINES (HOME ONLY) ===== */
