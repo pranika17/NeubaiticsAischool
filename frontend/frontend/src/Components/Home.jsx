@@ -20,7 +20,7 @@ import './Home.css'
 import { baseUrl, defaultAvatarUrl, defaultCourseImageUrl, resolveMediaUrl } from '../config'
 
 const Home = () => {
-  const homeVideoUrl = process.env.REACT_APP_HOME_VIDEO_URL || "/videos/home-background.mp4";
+  const homeVideoUrl = process.env.REACT_APP_HOME_VIDEO_URL || "/videos/dark.mp4";
 
   const officeSlides = [
     {
